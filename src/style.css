@@ -1,0 +1,97 @@
+:root {
+  --code-background-color: #300a24;
+  --code-color: white;
+  --code-box-shadow: 3px 3px 10px rgba(146, 146, 146, 0.15);
+  --list-style: outside url("icons/arrowr-light.svg");
+}
+
+@font-face {
+  font-family: Redcap;
+  src: url("fonts/RedcapBloodthirsty-woaP.ttf") format("truetype");
+}
+
+.github-mark {
+  content: url(icons/github-mark-white.png);
+  width: 0.95em;
+}
+
+.print-pdf, .speaker-notes-pdf {
+  --code-background-color: white;
+  --code-color: black;
+  --code-box-shadow: 2px 2px 5px black;
+  --r-link-color: #016ab1;
+  --list-style: outside url("icons/arrowr-dark.svg");
+}
+
+.print-pdf .github-mark {
+  content: url(icons/github-mark.png);
+}
+
+.print-pdf .reveal a {
+  text-decoration: underline;
+}
+
+.reveal pre {
+  background-color: var(--code-background-color);
+  color: var(--code-color);
+  box-shadow: var(--code-box-shadow);
+  border-radius: 10px;
+  font-size: 0.3em;
+  padding: 0.75em;
+}
+
+.reveal figcaption {
+  font-size: 0.25em;
+}
+
+.reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5 {
+  background-clip: text;
+  background: linear-gradient(#faed1eff, #f15b2bff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* https://forum.obsidian.md/t/export-to-pdf-gradiant-text-not-rendering-properly/47205 */
+.print-pdf .reveal h1, .print-pdf .reveal h2, .print-pdf .reveal h3, .print-pdf .reveal h4, .print-pdf .reveal h5 {
+  background-clip: unset;
+  background: var(--r-background-color);
+  color: var(--r-main-color);
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
+}
+
+.reveal li {
+  font-size: 0.75em;
+  list-style: var(--list-style)
+}
+
+.reveal section img {
+  background: none;
+  border: none;
+  box-shadow: none;
+  margin: 0;
+}
+
+.font-redcap {
+  font-family: Redcap !important;
+}
+
+.note-inline {
+  padding-left: 0.75em;
+  font-size: 0.5em;
+  vertical-align: middle;
+  color: rgb(161, 161, 161);
+}
+
+.print-pdf .note-inline {
+  color: rgb(60, 60, 60);
+}
+
+.reveal pre.inline {
+  box-shadow: none;
+  display: inline;
+  font-size: 0.5em;
+  padding-bottom: 0.2em;
+  padding-top: 0.2em;
+  vertical-align: middle;
+}

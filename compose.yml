@@ -1,0 +1,94 @@
+---
+version: "3.8"
+
+x-common: &labels
+  hostname: ${HOSTNAME}
+  io.prometheus/scrape: true
+  io.github.agebhar1.project: observability
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.46.0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./etc/prometheus:/etc/prometheus:ro
+      - ${PROMETHEUS_DATA:-prometheus_data}:/var/lib/prometheus
+    command:
+      - --config.file=/etc/prometheus/config.yml
+      - --storage.tsdb.path=/var/lib/prometheus
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+    ports:
+      - 9090:9090
+    user: ${PROMETHEUS_USER:-65534}:${DOCKER_GID:-65534}
+    restart: unless-stopped
+    labels:
+      <<: *labels
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    volumes:
+      - ./etc/grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=s3cr3t
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    labels:
+      <<: *labels
+
+  loki:
+    image: grafana/loki:2.8.4
+    volumes:
+      - ./etc/loki/config.yml:/etc/loki/config.yml:ro
+      - ${LOKI_DATA:-loki_data}:/var/lib/loki
+    command:
+      - -config.file=/etc/loki/config.yml
+      - -log.level=${LOKI_LOG_LEVEL:-info}
+    ports:
+      - 3100:3100
+    user: ${LOKI_USER:-10001:10001}
+    restart: unless-stopped
+    labels:
+      <<: *labels
+
+  # https://grafana.com/docs/grafana-cloud/quickstart/docker-compose-linux/
+
+  promtail:
+    image: grafana/promtail:2.8.4
+    volumes:
+      - ./etc/promtail/config.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/log/journal/:/var/log/journal/:ro
+      - /run/log/journal/:/run/log/journal/:ro
+      - ${LOGFILES:-./var/log}:/mnt/log:ro
+      - promtail_data:/var/lib/promtail
+    ports:
+      - 9080:9080
+    restart: unless-stopped
+    labels:
+      <<: *labels
+      io.prometheus/port: 9080
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+    labels:
+      <<: *labels
+
+volumes:
+  prometheus_data:
+  promtail_data:
+  loki_data:

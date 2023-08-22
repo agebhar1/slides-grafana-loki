@@ -1,0 +1,84 @@
+---
+# https://grafana.com/docs/loki/latest/clients/promtail/configuration/
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /var/lib/promtail/positions.yml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: containers
+    # https://grafana.com/docs/loki/latest/clients/promtail/configuration/#docker_sd_config
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 15s
+        filters:
+          - name: label
+            values: ["io.github.agebhar1.project=observability"]
+    relabel_configs:
+      - source_labels: ["__meta_docker_container_label_com_docker_compose_service"]
+        target_label: "service"
+      - source_labels: ["__meta_docker_container_name"]
+        regex: "/(.*)"
+        target_label: "container"
+      - source_labels: ["__meta_docker_container_label_hostname"]
+        target_label: "instance"
+    pipeline_stages:
+      - docker: {}
+      - static_labels:
+          job: containers
+
+  - job_name: journal
+    # https://grafana.com/docs/loki/latest/clients/promtail/configuration/#journal
+    # https://grafana.com/docs/loki/latest/clients/promtail/scraping/#journal-scraping-linux-only
+    # man systemd.journal-fields
+    journal:
+      path: /var/log/journal
+      labels:
+        job: systemd-journal
+    relabel_configs:
+      - source_labels: ["__journal_priority_keyword"]
+        target_label: "level"
+      - source_labels: ["__journal_syslog_identifier"]
+        target_label: "syslog_identifier"
+      - source_labels: ["__journal__systemd_unit"]
+        target_label: "unit"
+      - source_labels: ["__journal__transport"]
+        target_label: "transport"
+
+  - job_name: various
+    # https://grafana.com/docs/loki/latest/clients/promtail/configuration/#static_configs
+    static_configs:
+      - labels:
+          job: various
+          __path__: /mnt/log/*.log
+
+  - job_name: various-metrics
+    static_configs:
+      - labels:
+          job: various
+          __path__: /mnt/log/*.log
+    pipeline_stages:
+      # https://grafana.com/docs/loki/latest/clients/promtail/stages/metrics/
+      - metrics:
+          log_lines_total:
+            type: Counter
+            description: "total number of log lines"
+            # prefix: promtail_custom_
+            max_idle_duration: 24h
+            config:
+              match_all: true
+              action: inc
+          log_bytes_total:
+            type: Counter
+            description: "total bytes of log lines"
+            # prefix: promtail_custom_
+            max_idle_duration: 24h
+            config:
+              match_all: true
+              count_entry_bytes: true
+              action: add

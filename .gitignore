@@ -1,0 +1,7 @@
+.vagrant/
+.vscode/
+
+dist/
+node_modules/
+var/
+.env

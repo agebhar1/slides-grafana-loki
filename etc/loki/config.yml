@@ -1,0 +1,110 @@
+---
+# https://grafana.com/docs/loki/latest/configuration/
+# https://github.com/grafana/loki/blob/main/production/docker/config/loki.yaml
+
+auth_enabled: false
+
+# https://grafana.com/docs/loki/latest/configuration/#server
+common:
+  path_prefix: /var/lib/loki
+  storage:
+    filesystem:
+      chunks_directory: /var/lib/loki/chunks
+      rules_directory: /var/lib/loki/rules
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+# https://grafana.com/docs/loki/latest/configuration/#server
+server:
+  http_listen_port: 3100
+  # http_listen_address: 127.0.0.1
+  # http_path_prefix: ""
+
+  # graceful_shutdown_timeout: 30s
+  # http_server_read_timeout: 30s
+  # http_server_write_timeout: 30s
+  # http_idle_timeout: 2m
+
+# https://grafana.com/docs/loki/latest/configuration/#querier
+querier:
+  # split_queries_by_interval: 30m # [<duration> | default = 30m] Split queries by a time interval and execute in parallel. The value 0 disables splitting by time. This also determines how cache keys are chosen when result caching is enabled.
+  max_concurrent: 8192 # [<int> | default = 10] The maximum number of concurrent queries allowed.
+
+# https://grafana.com/docs/loki/latest/configuration/#query_scheduler
+query_scheduler:
+  max_outstanding_requests_per_tenant: 8192 # [<int> | default = 100] Maximum number of outstanding requests per tenant per query-scheduler. In-flight requests above this limit will fail with HTTP response status code 429.
+
+# https://grafana.com/docs/loki/latest/configuration/#frontend
+frontend:
+  compress_responses: true # [<boolean> | default = false] Compress HTTP responses.
+  log_queries_longer_than: 5s # [<duration> | default = 0s] Log queries that are slower than the specified duration. Set to 0 to disable. Set to < 0 to enable on all queries.
+  max_outstanding_per_tenant: 8192 # [<int> | default = 2048] Maximum number of outstanding requests per tenant per frontend; requests beyond this error with HTTP 429.
+  query_stats_enabled: true # [<boolean> | default = false] True to enable query statistics tracking. When enabled, a message with some statistics is logged for every query.
+
+# https://grafana.com/docs/loki/latest/configuration/#query_range
+query_range:
+  align_queries_with_step: true # Mutate incoming queries to align their start and end with their step. => make queries more cache-able by aligning them with their step intervals
+  cache_results: true # [<boolean> | default = false] Cache query results.
+  results_cache:
+    # https://grafana.com/docs/loki/latest/configuration/#cache_config
+    cache:
+      embedded_cache:
+        enabled: true
+        max_size_mb: 1024 # [<int> | default = 100] Maximum memory size of the cache in MB.
+        ttl: 1h # [<duration> | default = 1h] The time to live for items in the cache before they get purged.
+    compression: snappy # [<string> | default = ""] Use compression in results cache. Supported values are: 'snappy' and '' (disable compression).
+
+# https://grafana.com/docs/loki/latest/configuration/#ingester
+ingester:
+  chunk_encoding: snappy # [<string> | default = "gzip"] The algorithm to use for compressing chunk. (none, gzip, lz4-64k, snappy,  lz4-256k, lz4-1M, lz4, flate, zstd)
+
+schema_config:
+  configs:
+    # https://grafana.com/docs/loki/latest/operations/storage/tsdb/
+    # https://github.com/grafana/loki/issues/9105 -- Mark all alternative stores but TSDB as deprecated
+    - from: 2023-04-20
+      store: tsdb
+      object_store: filesystem
+      schema: v12
+      index:
+        prefix: tsdb_index_
+        period: 24h
+      chunks:
+        prefix: tsdb_chunks_
+        period: 24h
+
+# https://grafana.com/docs/loki/latest/configuration/#compactor
+compactor:
+  working_directory: /var/lib/loki/tmp
+  shared_store: filesystem
+
+# https://grafana.com/docs/loki/latest/configuration/#limits_config
+limits_config:
+  ingestion_rate_mb: 4 # Per-user ingestion rate limit in sample size per second. Units in MB.
+  ingestion_burst_size_mb: 6 # Per-user allowed ingestion burst size (in sample size). Units in MB. The burst size refers to the per-distributor local rate limiter even in the case of the 'global' strategy, and should be set at least to the maximum logs size expected in a single push request.
+
+  per_stream_rate_limit: 3MB # Maximum byte rate per second per stream, also expressible in human readable forms (1MB, 256KB, etc).
+  per_stream_rate_limit_burst: 15MB # Maximum burst bytes per stream, also expressible in human readable forms (1MB, 256KB, etc). This is how far above the rate limit a stream can 'burst' before the stream is limited.
+
+  reject_old_samples: true # Whether or not old samples will be rejected.
+  reject_old_samples_max_age: 1w # Maximum accepted sample age before rejecting.
+
+# https://grafana.com/docs/loki/latest/configuration/#table_manager
+table_manager:
+  # retention_deletes_enabled: false # [<boolean> | default = false] If true, enables retention deletes of DB tables
+  # retention_period: 0s # [<duration> | default = 0s] Tables older than this retention period are deleted. Must be either 0 (disabled) or a multiple of 24h. When enabled, be aware this setting is destructive to data!
+#
+# By default, Loki will send anonymous, but uniquely-identifiable usage and configuration
+# analytics to Grafana Labs. These statistics are sent to https://stats.grafana.org/
+#
+# Statistics help us better understand how Loki is used, and they show us performance
+# levels for most users. This helps us prioritize features and documentation.
+# For more information on what's sent, look at
+# https://github.com/grafana/loki/blob/main/pkg/usagestats/stats.go
+# Refer to the buildReport method to see what goes into a report.
+#
+# If you would like to disable reporting, uncomment the following lines:
+#analytics:
+#  reporting_enabled: false

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Grafana Loki Unleashed</title>
+
+    <meta charset="utf-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <link rel="stylesheet" href="node_modules/reveal.js/dist/reset.css" />
+    <link rel="stylesheet" href="node_modules/reveal.js/dist/reveal.css" />
+    <link rel="stylesheet" href="node_modules/reveal.js/dist/theme/black.css" id="theme" />
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h1 class="font-redcap">Grafana Loki</h1>
+          <h2 class="font-redcap" style="background: none; -webkit-text-fill-color: #8b0303; font-size: 1.5em; color: #8b0303; text-shadow: 1px 3px 3px #f15b2bff !important;"
+            >unleashed</h2>
+        </section>
+
+        <section>
+          <section>
+            <h2 class="style-grafana">About Me</h2>
+          </section>
+          <section>
+            <h3 class="style-grafana">Andreas Gebhardt</h3>
+            <ul>
+              <li>Software Engineer</li>
+              <li>Open Source Enthusiast</li>
+              <li>
+                <div style="display: flex; align-items: center;">
+                  <span>agebhar1@</span>&nbsp;{
+                  <a target="_blank" href="https://www.github.com/agebhar1" style="top: 4px"><img class="github-mark"/></a>,&nbsp;
+                  <a target="_blank" href="https://www.x.com/agebhar1" style="top: 4px"><svg style="width: 0.95em; color: var(--r-main-color); fill: currentcolor;" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></g></svg></a>
+                  }
+                </div>
+              </li>
+            </ul>
+          </section>
+        </section>
+
+        <section>
+          <!-- https://grafana.com/docs/loki/latest/ -->
+            <h1>Grafana Loki</h1>
+            <q>Like Prometheus, but for logs!</q>
+            <p>
+              <span class="fragment" style="font-size: 0.75em;">core of a full-featured logging stack</span>
+            </p>
+            <aside class="notes">
+              <ul>
+                <li>only indexing metadata (labels)</li>
+                <li>log data compressed and stored in chunks in object stores (e.g S3)</li>
+                <li>simplifies operation and significantly lowers cost</li>
+              </ul>
+            </aside>
+        </section>
+
+        <section>
+          <!-- https://grafana.com/docs/loki/latest/fundamentals/ -->
+          <section>
+            <h1>Origin</h1>
+            <span style="font-size: 0.75em;">Design Document (2018)</span>
+          </section>
+          <section>
+            <h2>Existing Solutions</h2>
+            <ul>
+              <li class="fragment">full-text search based (e.g. Elasticsearch <a target="_blank" href="https://www.elastic.co/guide/en/elasticsearch/reference/8.8/documents-indices.html">Data in: documents and indices</a>)</li>
+              <li class="fragment">based on <a target="_blank" href="https://en.wikipedia.org/wiki/Inverted_index">inverted index</a></li>
+              <li class="fragment">complicated to scale</li>
+              <li class="fragment">resource intensive</li>
+            </ul>
+          </section>
+          <section>
+            <h2>Daily Business</h2>
+            <figure class="fragment">
+              <img style="width: 50%;" src="images/alicegoldfuss-tweet.png" />
+              <figcaption>
+                <a target="_blank" href="https://twitter.com/alicegoldfuss/status/981947777256079360">https://twitter.com/alicegoldfuss/status/981947777256079360</a>
+              </figcaption>
+            </figure>
+            <br/>
+            <ul>
+              <li class="fragment">queries focusing on a time range (+ simple parameters)</li>
+            </ul>
+            <aside class="notes">
+              <ul>
+                <li>Kubernetes: logging has changed in modern cloud native (...) workloads, STDOUT/STDERR</li>
+              </ul>
+            </aside>
+          </section>
+          <section>
+            <h2>Cost Efficiency</h2>
+            <ul>
+              <li class="fragment">excessive costs in SaaS log aggregation</li>
+              <li class="fragment">scaling and sharding an inverted index is hard</li>
+              <li class="fragment">
+                <a target="_blank" href="https://github.com/oklog/oklog">OK Log</a> (archived) by Peter Bourgon
+                <ul>
+                  <li>eventually consistent, mesh-based distribution strategy</li>
+                  <li>massive cost reduction</li>
+                  <li>simpler operations</li>
+                </ul>
+              </li>
+            </ul>
+          </section>
+          <section>
+            <h2>Prometheus and Cortex</h2>
+            <ul>
+              <li class="fragment">monitoring system around time series database (TSDB)</li>
+              <li class="fragment">indexes collection of samples (a time series) and Key/Values (labels)</li>
+              <li class="fragment">queries by specifying subset of labels (matchers)</li>
+              <li class="fragment">
+                labels stored in an inverted index
+                <ul class="fragment">
+                  <li>(Cortex) in memory for recent (data), distributed K/V store for historic data</li>
+                  <li>scales linearly by retention and throughput</li>
+                  <li>limited in cardinality of given labels (by design)</li>
+                </ul>
+              </li>
+            </ul>
+          </section>
+          <section>
+            <h2>Cortex Architecture</h2>
+            <figure>
+              <img src="images/cortex-architecture.excalidraw.png">
+              <figcaption>
+                <a target="_blank" href="https://cortexmetrics.io/docs/architecture/">https://cortexmetrics.io/docs/architecture/</a>
+              </figcaption>
+            </figure>
+          </section>
+          <section>
+            <h2>Stories <span class="note-inline">1/4</span></h2>
+            <q>After receiving an alert on my service and drilling into the query associated with said alert, I want to quickly see the logs associated with the jobs which produced those timeseries at the time of the alert.</q>
+          </section>
+          <section>
+            <h2>Stories <span class="note-inline">2/4</span></h2>
+            <q>After a pod or node disappears, I want to be able to retrieve logs from just before it died, so I can diagnose why it died.</q>
+          </section>
+          <section>
+            <h2>Stories <span class="note-inline">3/4</span></h2>
+            <q>After discovering an ongoing issue with my service, I want to extract a metric from some logs and combine it with my existing time series data.</q>
+          </section>
+          <section>
+            <h2>Stories <span class="note-inline">4/4</span></h2>
+            <q>I have a legacy job which does not expose metrics about errors - it only logs them.  I want to build an alert based on the rate of occurrences of errors in the log.</q>
+          </section>
+          <section>
+            <h2>Proposed Solution</h2>
+            <ul>
+              <li class="fragment">index metadata (form of Prometheus-style multidimensional labels)</li>
+              <li class="fragment">use existing distributed databases and object store systems</li>
+            </ul>
+          </section>
+          <section>
+            <h2>Architecture</h2>
+            <ul>
+              <li class="fragment">agent is Promtail <span class="note-inline">reuse Prometheus code for service discovery, labeling and relabeling</span></li>
+              <li class="fragment">mirror Cortex architecture <span class="note-inline">on write request</span>
+                <ul>
+                  <li>distributor/ingester</li>
+                  <li>reuse consistent hash ring</li>
+                </ul>
+              </li>
+              <li class="fragment">
+                  log chunks <span class="note-inline">format important for cost/performance</span>
+                  <ul>
+                    <li>to large to entirely decompress</li>
+                    <li>support streaming <span class="note-inline">read request</span></li>
+                  </ul>
+              </li>
+              <li class="fragment"><a target="_blank" href="https://docs.google.com/spreadsheets/d/1zTtln0kKspSWsHtwmamZzSnsHspHQigd-1jotZ8l9gc/edit#gid=0">Compression Stats</a></li>
+            </ul>
+            <aside class="notes">
+              <ul>
+                <li>'Chunk': logs for a given label set over a certain period</li>
+                <li>format: important cost and performance</li>
+                <li>(must) support: appends, seeks and streaming reads</li>
+                <li>for optimal chunk size consider:
+                <ul>
+                  <li>per operation cost vs. storage costs</li>
+                  <li>per chunk index load</li>
+                  <li>cost of memory</li>
+                  <li>compression effectiveness => need to be batched</li>
+                  <li>=> approx. 1 MB (compressed)</li>
+                </ul></li>
+                <li>consists of a series of blocks
+                  <ul>
+                    <li>first block, gorilla-style encoded time index (<a target="_blank" href="https://www.vldb.org/pvldb/vol8/p1816-teller.pdf">Gorilla: A Fast, Scalable, In-Memory Time Series Database</a> by Facebook)</li>
+                  </ul>
+                </li>
+              </ul>
+          </aside>
+          </section>
+        </section>
+
+        <section>
+          <!-- https://grafana.com/docs/loki/latest/fundamentals/architecture/ -->
+          <section>
+            <h1>Architecture</h1>
+          </section>
+          <section>
+            <img src="images/loki-architecture.excalidraw.png">
+          </section>
+          <section data-visibility="hidden">
+            <h2>Components</h2>
+          </section>
+          <section data-visibility="hidden">
+            <h3>Distributor</h3>
+            <ul>
+              <li>stateless</li>
+              <li>handling incoming streams<span class="note-inline">hash(unique tenant + label set) / <a target="_blank" href="https://en.wikipedia.org/wiki/Consistent_hashing">Consistent Hashing</a></span></li>
+              <li>validated for correctness (e.g. labels)</li>
+              <li>ensure (rate) limit and timestamps</li>
+              <li>(valid) chunks split into batches, sent to multiple ingesters in parallel</li>
+              <li><a target="_blank" href="https://www.amazon.science/publications/dynamo-amazons-highly-available-key-value-store">Dynamo</a> style quorum consistency</li>
+            </ul>
+          </section>
+          <section data-visibility="hidden">
+            <h3>Ingester</h3>
+            <ul>
+              <li>writing log data to long-term storage<span class="note-inline">write path</span></li>
+              <li>returning log data for in-memory queries<span class="note-inline">read path</span></li>
+              <li>using write ahead log (WAL)</li>
+              <li>chunks compressed and marked read-only when
+                <ul>
+                  <li>reached capacity</li>
+                  <li>idle time exceeded (no update occurred)</li>
+                  <li>flush occurs</li>
+                </ul>
+              </li>
+              <li>timestamp ordering
+                <ul>
+                  <li>accepts out-of-order writes, if enabled</li>
+                  <li>rejected, otherwise</li>
+                </ul>
+              </li>
+            </ul>
+          </section>
+          <section data-visibility="hidden">
+            <h3>Query Frontend</h3>
+            <ul>
+              <li>optional/stateless service</li>
+              <li>adjust query, e.g. splits larger into multiple smaller</li>
+              <li>holds queries in a (FIFO) queue
+                <ul>
+                  <li>ensure retry of large queries in case of OOM error</li>
+                  <li>distribute across all queriers</li>
+                  <li>prevent single tenant DoS-ing</li>
+                </ul>
+              </li>
+              <li>caching query result
+                <ul>
+                  <li>if incomplete, sub-queries calculated and executed</li>
+                  <li>optionally align queries to improve cacheability</li>
+                </ul>
+              </li>
+            </ul>
+          </section>
+          <section data-visibility="hidden">
+            <h3>Querier</h3>
+            <ul>
+              <li>handles (execute) queries</li>
+              <li>fetching from ingesters and long-term storage</li>
+              <li>applies deduplication <code><pre class="inline">because of replication</pre></code></li>
+            </ul>
+          </section>
+          <section>
+            <h2>Multi-tenancy</h2>
+            <ul class="fragment">
+              <li>HTTP Header <code><pre class="inline">X-Scope-OrgId</pre></code>&nbsp;(multi-tenant mode)</li>
+              <li><code><pre class="inline">fake</pre></code>&nbsp;otherwise</li>
+            </ul>
+          </section>
+          <section>
+            <h2>Chunk Format</h2>
+            <code>
+              <pre class="js:trim-whitespace" style="width: 48em">
+                ┌─────────────────────────────────────────────────────────────────────────────┐
+                │                         Header (Tenant, Labels, ...)                        │
+                ├─────────────────────────────────────────────────────────────────────────────┤
+                │                                     |                  |                    │
+                │        MagicNumber (4b)             │   version (1b)   │  compression (1b)  │
+                │          [0x012EE56A]               |       [3]        |                    │
+                ├─────────────────────────────────────────────────────────────────────────────┤&lt;─────┐
+                │   block-1 bytes (compressed)        |              checksum (4b)            │      │
+                ├─────────────────────────────────────────────────────────────────────────────┤      │
+                │   block-2 bytes (compressed)        |              checksum (4b)            │      │
+                ├─────────────────────────────────────────────────────────────────────────────┤      │
+                │                                    ...                                      │      │
+                ├─────────────────────────────────────────────────────────────────────────────┤      │
+                │   block-n bytes (compressed)        |              checksum (4b)            │      │
+                ├─────────────────────────────────────────────────────────────────────────────┤&lt;──┐  │
+                │                             #blocks (uvarint)                               │   │  │
+                ├─────────────────────────────────────────────────────────────────────────────┤   │  │
+                │ #entries(uvarint) | mint, maxt (varint) | offset, uncompSize, len (uvarint) │───┼──┘
+                ├─────────────────────────────────────────────────────────────────────────────┤   │
+                │ #entries(uvarint) | mint, maxt (varint) | offset, uncompSize, len (uvarint) │   │
+                ├─────────────────────────────────────────────────────────────────────────────┤   │
+                │                                    ...                                      │   │
+                ├─────────────────────────────────────────────────────────────────────────────┤   │
+                │ #entries(uvarint) | mint, maxt (varint) | offset, uncompSize, len (uvarint) │   │
+                ├─────────────────────────────────────────────────────────────────────────────┤   │
+                │                            checksum(from #blocks)                           │   │
+                ├─────────────────────────────────────────────────────────────────────────────┤   │
+                │                          #blocks section byte offset                        │───┘
+                └─────────────────────────────────────────────────────────────────────────────┘
+              </pre>
+            </code>
+            <ul>
+              <li><code><pre class="inline">mint</pre></code>, <code><pre class="inline">maxt</pre></code> minimum/maximum Unix nanosecond timestamp</li>
+              <li><code><pre class="inline">uncompSize</pre></code> since v3</li>
+              <li><code><pre class="inline">(u)variant</pre></code> Go package <pre class="inline">encoding/binary</pre></code></li>
+            </ul>
+          </section>
+          <section>
+            <h2>Block Format</h2>
+            <code>
+              <pre class="js:trim-whitespace" style="width: 40em">
+                ┌─────────────────────────────────────────────────────────────────┐
+                │    ts (varint)    |     len (uvarint)    |     log-1 bytes      │
+                ├─────────────────────────────────────────────────────────────────┤
+                │    ts (varint)    |     len (uvarint)    |     log-2 bytes      │
+                ├─────────────────────────────────────────────────────────────────┤
+                │                              ...                                │
+                ├─────────────────────────────────────────────────────────────────┤
+                │    ts (varint)    |     len (uvarint)    |     log-n bytes      │
+                └─────────────────────────────────────────────────────────────────┘
+
+                &nbsp;                                                      uncompressed
+              </pre>
+            </code>
+            <ul>
+              <li>compressed with gzip, snappy or disabled</li>
+              <li><code><pre class="inline">ts</pre></code> Unix nanosecond timestamp</li>
+              <li><code><pre class="inline">len</pre></code> bytes of log entry</li>
+              <li class="fragment">Loki Dev Tool: <a target="_blank" href="https://github.com/grafana/loki/tree/main/cmd/chunks-inspect">chunks-inspect</a></li>
+            </ul>
+          </section>
+          <section>
+            <h2>Storage</h2>
+            <ul>
+              <li class="fragment">Single Storage <span class="note-inline">since Loki 2.0</span>
+                <ul>
+                  <li>Amazon S3 <span class="note-inline">or API compliant</span></li>
+                  <li>Azure Blob Storage</li>
+                  <li>Baidu Object Storage</li>
+                  <li>Google Cloudstorage</li>
+                  <li>Filesystem <span class="note-inline">only for Monolithic Mode</span></li>
+                </ul>
+              </li>
+              <li class="fragment">Multi-store (deprecated)</li>
+            </ul>
+            <!-- https://grafana.com/docs/loki/latest/operations/storage/wal/ -->
+          </section>
+          <section>
+            <h2>Deployment Modes</h2>
+            <ul>
+              <li class="fragment">built out of 8 component microservices</li>
+              <li class="fragment">designed to run as a horizontally-scalable distributed system</li>
+              <li class="fragment">controlled by <code><pre class="inline">-target</pre></code></li>
+            </ul>
+          </section>
+          <section>
+            <h3>Monolithic Mode</h3>
+            <ul>
+              <li class="fragment"><code><pre class="inline">-target=all</pre></code><span class="note-inline">default</span></li>
+              <li class="fragment">getting started quickly, small r/w volumes up tp approx. 100GB/day</li>
+              <li class="fragment">HA by two instances using <code><pre class="inline">memberlist_config</pre></code> and shared object store</li>
+              <li class="fragment">route via round robin</li>
+              <li class="fragment">query parallelization is limited</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Simple Scalable Deployment Mode</h3>
+            <ul>
+              <li class="fragment"><code><pre class="inline">-target=read|write</pre></code></li>
+              <li class="fragment">higher volume, or separate r/w concerns</li>
+              <li class="fragment">can scale to several TB/day</li>
+              <li class="fragment">
+                advantages:
+                <ul>
+                  <li>higher availability of write path</li>
+                  <li>separately scalable read path</li>
+                </ul>
+              </li>
+              <li class="fragment">requires load balancer in front of Loki</li>
+              <li class="fragment"><a target="_blank" href="https://github.com/grafana/loki/blob/main/production/docker/README.md">Docker Compose</a> example</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Microservice Mode</h3>
+            <ul>
+              <li class="fragment">each component by <code><pre class="inline">-target=ingester|distributor|…</pre></code><span class="note-inline">#8 microservices</span></li>
+              <li class="fragment">most efficient but also most complex to set up and maintain</li>
+              <li class="fragment">works best with Kubernetes deployments</li>
+              <li class="fragment"><a target="_blank" href="https://github.com/grafana/loki/blob/main/production/nomad/README.md">Nomad</a> example</li>
+            </ul>
+            <aside class="notes">
+              <ul>
+                <ul>
+                  <li><code>ingester</code></li>
+                  <li><code>distributor</code></li>
+                  <li><code>query-frontend</code></li>
+                  <li><code>query-scheduler</code></li>
+                  <li><code>querier</code></li>
+                  <li><code>index-gateway</code></li>
+                  <li><code>ruler</code></li>
+                  <li><code>compactor</code></li>
+                </ul>
+              </ul>
+            </aside>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h1>Clients</h1>
+          </section>
+          <!-- https://grafana.com/docs/loki/latest/clients/ -->
+          <section>
+            <ul>
+              <li><a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/">Promtail</a></li>
+              <li class="fragment"><a target="_blank" href="https://grafana.com/docs/loki/latest/clients/docker-driver/">Docker Driver</a><span class="note-inline">via plugin</span></li>
+              <li class="fragment"><a target="_blank" href="https://grafana.com/docs/loki/latest/clients/fluentd/">Fluentd</a><span class="note-inline">via plugin</span></li>
+              <li class="fragment"><a target="_blank" href="https://grafana.com/docs/loki/latest/clients/fluentbit/">Fluent Bit</a><span class="note-inline">via plugin</span></li>
+              <li class="fragment"><a target="_blank" href="https://grafana.com/docs/loki/latest/clients/logstash/">Logstash</a><span class="note-inline">via plugin</span></li>
+              <li class="fragment"><a target="_blank" href="https://grafana.com/docs/loki/latest/clients/lambda-promtail/">Lambda Promtail</a></li>
+              <li class="fragment">…</li>
+            </ul>
+          </section>
+          <section>
+            <h2>Promtail</h2>
+            <ul>
+              <li class="fragment">borrows Prometheus <a target="_blank" href="https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config">service discovery mechanism</a></li>
+              <li class="fragment">can tail logs from local (log) files and systemd journal</li>
+              <li class="fragment">native support for compressed files <code><pre class="inline">*.gz|*.z|*.bz2|*.tar.gz</pre></code></li>
+              <li class="fragment">uses file to save current positions</li>
+              <li class="fragment">exposes Prometheus metrics via <code><pre class="inline">/metrics</pre></code></li>
+              <li class="fragment">
+                each job can run multiple pipelines w/ different <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/">stages</a>:
+                <ul>
+                  <li class="fragment">filtering:&nbsp;
+                    <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/match/">match</a>,&nbsp;
+                    <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/drop/">drop</a>
+                  </li>
+                  <li class="fragment">parsing:&nbsp;
+                    <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/regex/">regex</a>,&nbsp;
+                    <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/json/">json</a>,&nbsp;
+                    <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/logfmt/">logfmt</a>,&nbsp;
+                    <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/multiline/">multiline</a>,&nbsp;
+                    <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/geoip/">geoip</a>,&nbsp;
+                    …
+                  </li>
+                  <li class="fragment">transform:&nbsp;
+                    <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/template/">template</a>,&nbsp;
+                    <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/pack/">pack</a>,&nbsp;
+                    <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/decolorize/">decolorize</a>
+                  </li>
+                  <li class="fragment">actions:&nbsp;
+                    <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/timestamp/">timestamp</a>,&nbsp;
+                    <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/output/">output</a>,&nbsp;
+                    <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/labels/">labels</a>,&nbsp;
+                    <span style="border-bottom: 1px solid white;"><a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/metrics/">metrics</a></span>,&nbsp;
+                    …
+                  </li>
+                </ul>
+              </li>
+              <li class="fragment">recommends rename and create for log rotation</li>
+              <li class="fragment">
+                <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/troubleshooting/">troubleshooting</a>, e.g. inspecting pipeline stages:<br>
+                <code>
+                  <pre class="js:trim-whitespace" style="width: 70em">
+                  $ cat my.log | \
+                  &nbsp;   promtail -config.file=config.yml --stdin --dry-run --inspect --client.url http://127.0.0.1:3100/loki/api/v1/push
+                  </pre>
+                </code>
+              </li>
+            </ul>
+          </section>
+          <section>
+            <h3>Metrics Action Stage</h3>
+            <ul>
+              <li class="fragment">exposed via <code><pre class="inline">/metrics</pre></code></li>
+              <li class="fragment">based on existence / exact match of extracted data map value</li>
+              <li class="fragment">types:
+                <ul>
+                  <li class="fragment">Counter:&nbsp;
+                    <code><pre class="inline">inc</pre></code> or&nbsp;
+                    <code><pre class="inline">add</pre></code>
+                  </li>
+                  <li class="fragment">Gauge:&nbsp;
+                    <code><pre class="inline">set</pre></code>,&nbsp;
+                    <code><pre class="inline">inc</pre></code>,&nbsp;
+                    <code><pre class="inline">dec</pre></code>,&nbsp;
+                    <code><pre class="inline">add</pre></code> or&nbsp;
+                    <code><pre class="inline">sub</pre></code>
+                  </li>
+                  <li class="fragment">Histogram</li>
+                </ul>
+              </li>
+            </ul>
+          </section>
+          <section>
+            <h2>mtail</h2>
+            <q><a target="_blank" href="https://github.com/google/mtail">mtail</a> is a tool for extracting metrics from application logs to be exported into a timeseries database or timeseries calculator for alerting and dashboarding.</q>
+            <code>
+              <pre class="js:trim-whitespace" style="width: 60em">
+                # simple line counter
+                counter lines_total
+                /$/ {
+                &nbsp; lines_total++
+                }
+              </pre>
+            </code>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h1 style="text-transform: none;">LogQL</h1>
+          </section>
+          <section>
+            <h2>Log queries</h2>
+            <code>
+              <pre class="js:trim-whitespace" style="width: 60%;">
+                &nbsp;                    |=  -- line filter
+                &nbsp;                    !=
+                &nbsp;                    |~
+                &nbsp;                    !~
+                &nbsp;{ stream selector } |   -- log pipeline
+                &nbsp;                    =   -- label filter
+                &nbsp;                    !=
+                &nbsp;                    =~
+                &nbsp;                    !~
+                &nbsp;                   &gt; &gt;=
+                &nbsp;                   &lt; &lt;=
+                &nbsp;
+                &nbsp;                         ~ RegEx (Go RE2)
+              </pre>
+            </code>
+            <ul>
+              <li class="fragment">Label filter expression
+              <ul>
+                <li>value types: String, Duration, Number, Bytes</li>
+                <li>chain predicates: <pre class="inline">and</pre></code> (or <pre class="inline">,</pre></code>), <pre class="inline">or</pre></code></li>
+              </ul>
+              </li>
+              <li class="fragment">Parser expression:
+                <pre class="inline">json</pre></code>,
+                <pre class="inline">logfmt</pre></code>,
+                <pre class="inline">pattern …</pre></code>,
+                <pre class="inline">regex …</pre></code>
+              </li>
+              <li class="fragment">others: <pre class="inline">line_format …</pre></code>, <pre class="inline">label_format …</pre>, <pre class="inline">drop …</pre></code></code></li>
+            </ul>
+          </section>
+          <section>
+            <h2>Metric queries</h2>
+            <ul>
+              <li class="fragment">Log (metadata) range aggregation (over duration):<br>
+                <pre class="inline">rate(…)</pre></code>,
+                <pre class="inline">count_over_time(…)</pre></code>,
+                <pre class="inline">bytes_rate(…)</pre></code>,<br>
+                <pre class="inline">bytes_over_time(…)</pre></code>,
+                <pre class="inline">absent_over_time(…)</pre></code>
+              </li>
+              <li class="fragment">Unwrapped range aggregation (by label)
+                <ul>
+                  <li>requires <pre class="inline">unwrap &lt;function&gt; …</pre></code></li>
+                  <li>functions: <pre class="inline">duration_seconds(…)</pre></code>, <pre class="inline">bytes(…)</pre></code></li>
+                  <li>aggregations:
+                    <pre class="inline">rate(…)</pre></code>,
+                    <pre class="inline">rate_counter(…)</pre></code>,
+                    <pre class="inline">sum_over_time(…)</pre></code>,
+                    <pre class="inline">avg_over_time(…)</pre></code>,<br>
+                    <pre class="inline">max_over_time(…)</pre></code>,
+                    <pre class="inline">min_over_time(…)</pre></code>, …
+                  </li>
+                </ul>
+              </li>
+              <li class="fragment">Aggregate operators
+                <ul>
+                  <li>like PromQL, aggregate the elements of a single vector</li>
+                  <li>over labels:
+                    <pre class="inline">sum(…)</pre></code>,
+                    <pre class="inline">avg(…)</pre></code>,
+                    <pre class="inline">min(…)</pre></code>, …
+                  </li>
+                  <li>of elements
+                    <pre class="inline">count(…)</pre></code>,
+                    <pre class="inline">topk(…)</pre></code>,
+                    <pre class="inline">bottom(…)</pre></code>
+                  </li>
+                  <li><pre class="inline">sort(…)</pre></code>, <pre class="inline">sort_desc(…)</pre></code> by sample value</li>
+                </ul>
+              </li>
+            </ul>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h1>Demo</h1>
+            <code>
+              <pre class="js:trim-whitespace">
+                $ vagrant up
+                Bringing machine 'default' up with 'virtualbox' provider...
+                ==> default: Importing base box 'opensuse/Tumbleweed.x86_64'...
+                ==> default: Generating MAC address for NAT networking...
+                …
+                ==> default: Running provisioner: shell...
+                default: Running: inline script
+                default: Retrieving repository 'openSUSE-Tumbleweed-Non-Oss' metadata [.........done]
+                default: Building repository 'openSUSE-Tumbleweed-Non-Oss' cache [...done]
+                …
+                ==> default: Running provisioner: shell...
+                default: Running: inline script
+                default: Archive:  /tmp/logcli-linux-amd64.zip
+                default:   inflating: /home/vagrant/.local/bin/logcli-linux-amd64
+                $ vagrant ssh
+                Have a lot of fun...
+                vagrant@loki:~> cd /vagrant/
+                vagrant@loki:/vagrant> docker-compose up -d
+                …
+              </pre>
+            </code>
+            <ul>
+              <li>open <a target="_blank" href="http://192.168.56.10:3000">http://192.168.56.10:3000</a><span class="note-inline">admin/s3cr3t</span></li>
+              <li>if run w/o Vagrant <code><pre class="inline">$ cp dotenv .env</pre></code> and adjust</li>
+            </ul>
+          </section>
+          <!--
+            promtail_custom_log_bytes_total{filename="/mnt/log/a.log"}
+            promtail_custom_log_lines_total{exported_job="various"}
+          -->
+          <section data-visibility="hidden">
+            <code>
+              <pre class="js:trim-whitespace">
+                $ # format => apache_common, apache_combined, apache_error, rfc3164, rfc5424, json, logfmt
+                $ k6 run -e FORMAT=logfmt --iterations 100 k6/script.js
+
+
+                $ watch 'date >> /home/vagrant/promtail/log/date.log'
+              </pre>
+            </code>
+            <div style="font-size: small; text-align: right !important;padding-right: 2.75em;">generate log test data</div>
+          </section>
+          <section data-visibility="hidden">
+            <h3>Log Queries</h3>
+            <code>
+              <pre class="js:trim-whitespace">
+                {app=~"k6"} |= "status=200"                                            # all requests w/ HTTP Status 200
+
+                {app=~"k6"} |~ "status=404"                                            # all requests w/ HTTP Status 404
+
+                {app=~"k6"} |~ "status=5"                                              # all requests w/ HTTP Status 5xx
+
+                {app=~"k6"} |= "method=POST" | logfmt | __error__ = "" | bytes > 20KB  # all POST requests w/ >20KB
+
+                {job="systemd-journal"}                                                # users invoked `sudo`
+                &nbsp;    |~ `pam_unix\([a-z]+:session\)`
+                &nbsp;    |= "opened"
+                &nbsp;    | pattern "pam_unix(&lt;type&gt;:session): session opened for user &lt;_&gt; by &lt;user&gt;(uid=&lt;_&gt;)"
+                &nbsp;    | __error__ = ""
+                &nbsp;    | label_format type="{{.type}}"
+                &nbsp;    | line_format "{{.user}}"
+              </pre>
+            </code>
+          </section>
+          <section data-visibility="hidden">
+            <h3>Metric Queries</h3>
+            <code>
+              <pre class="js:trim-whitespace">
+                sum(count_over_time(
+                &nbsp;  {job="systemd-journal"}[$__interval]
+                &nbsp;    |~ `pam_unix\(sudo:session\)`
+                &nbsp;    |= "opened"
+                &nbsp;    | pattern "pam_unix(sudo:session): session opened for user &lt;_&gt; by &lt;user&gt;(uid=&lt;_&gt;)"
+                &nbsp;    | __error__ = ""
+                &nbsp;    | line_format "{{.user}}")) by (user)
+
+                sum(count_over_time({app=~"k6", format="logfmt"}[$__interval] | logfmt)) by (method)
+
+                sum(rate({app=~"k6", format="logfmt"}[$__interval] | logfmt | unwrap bytes)) by (method)
+              </pre>
+            </code>
+          </section>
+        </section>
+
+        <section>
+          <h2 class="font-bloody">Resources</h2>
+          <ul style="font-size: 0.6em">
+            <li><a target="_blank" href="https://grafana.com/docs/loki/latest/">Grafana Loki</a><span class="note-inline">Documentation</span></li>
+            <li><a target="_blank" href="https://docs.google.com/document/d/11tjK_lvp1-SVsFZjgOTr1vV3-q6vBAsZYIQ5ZeYBkyM/view">Loki Design Document</a><span class="note-inline">2018 (Google Docs)</span></li>
+            <li><a target="_blank" href="https://grafana.com/blog/2019/04/15/how-we-designed-loki-to-work-easily-both-as-microservices-and-as-monoliths/">How we designed Loki to work easily both as Microservices and as Monoliths</a><span class="note-inline">04/2019 (Blog Post)</span></li>
+            <li><a target="_blank" href="https://grafana.com/blog/2020/02/19/how-loki-reduces-log-storage/">How Loki Reduces Log Storage</a><span class="note-inline">02/2020 (Blog Post)</span></li>
+            <li><a target="_blank" href="https://medium.com/lonto-digital-services-integrator/grafana-loki-configuration-nuances-2e9b94da4ac1">Grafana Loki Configuration Nuances</a><span class="note-inline">05/2023 (Blog Post)</span></li>
+            <li><a target="_blank" href="https://www.elastic.co/guide/en/elasticsearch/reference/8.8/documents-indices.html">Elasticsearch</a><span class="note-inline">Data in: documents and indices</span></li>
+            <li><a target="_blank" href="https://cortexmetrics.io/docs/architecture/">Cortex Architecture</a><span class="note-inline">Documentation</span></li>
+            <li><a target="_blank" href="https://dev.to/arslan_ah/how-to-use-consistent-hashing-in-a-system-design-interview-33ge">How to Use Consistent Hashing in a System Design Interview?</a><span class="note-inline">Blogpost</span></li>
+            <li><a target="_blank" href="https://en.wikipedia.org/wiki/Inverted_index">Inverted Index</a><span class="note-inline">Wikipedia</span></li>
+            <li><a target="_blank" href="https://en.wikipedia.org/wiki/Consistent_hashing">Consistent Hashing</a><span class="note-inline">Wikipedia</span></li>
+            <li><a target="_blank" href="https://www.amazon.science/publications/dynamo-amazons-highly-available-key-value-store">Dynamo: Amazon’s highly available key-value store</a><span class="note-inline">by Amazon</span></li>
+            <li><a target="_blank" href="https://www.vldb.org/pvldb/vol8/p1816-teller.pdf">Gorilla: A Fast, Scalable, In-Memory Time Series Database</a><span class="note-inline">by Facebook</span></li>
+            <li><a target="_blank" href="https://github.com/grafana/loki/blob/main/production/docker/README.md">Simple Scalable Deployment Mode example</a><span class="note-inline">by Grafana</span></li>
+            <li><a target="_blank" href="https://github.com/grafana/loki/blob/main/production/nomad/README.md">Microservice Mode example</a><span class="note-inline">by Grafana</span></li>
+            <li><a target="_blank" href="https://github.com/grafana/loki/tree/main/cmd/chunks-inspect">chunks-inspect</a><span class="note-inline">Loki Dev Tool</span></li>
+            <li><a target="_blank" href="https://github.com/oklog/oklog">OK Log</a><span class="note-inline">by Peter Bourgon</span></li>
+            <li><a target="_blank" href="https://github.com/google/mtail">mtail</a><span class="note-inline">extract internal monitoring data from application logs for collection into a timeseries database (by Google)</span></li>
+            <li>Font <a target="_blank" href="https://www.fontspace.com/redcap-font-f3647"><span class="font-redcap">Redcap</span></a></li>
+          </ul>
+        </section>
+      </div>
+    </div>
+    <!-- https://github.com/astefanutti/decktape -->
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
+
