@@ -1,4 +1,4 @@
-# Talk: Grafana Loki Unleased
+# Talk: Grafana Loki Unleashed
 
 From the Website of Grafana Loki:
 
