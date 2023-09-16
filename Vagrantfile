@@ -67,9 +67,10 @@ GOBIN=~/.local/bin/ go install go.k6.io/xk6/cmd/xk6@v0.9.2
 # build w/ loki k6 extension
 #
 mkdir -p src/github.com/grafana
+pushd src/github.com/grafana
 git clone https://github.com/grafana/xk6-loki
-pushd xk6-loki
-git checkout -b c5c764b
+cd xk6-loki
+git checkout 716728f # xk6-loki/pull/64
 make k6
 mv k6 ~/.local/bin/k6
 popd
