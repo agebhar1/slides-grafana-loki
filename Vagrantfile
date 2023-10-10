@@ -70,7 +70,7 @@ mkdir -p src/github.com/grafana
 pushd src/github.com/grafana
 git clone https://github.com/grafana/xk6-loki
 cd xk6-loki
-git checkout 716728f # xk6-loki/pull/64
+git checkout 12ba135 # master/56 commits
 make k6
 mv k6 ~/.local/bin/k6
 popd
