@@ -53,7 +53,7 @@ chmod +x ~/.local/bin/docker-compose
 #
 # install Grafana logcli
 #
-curl -L --silent https://github.com/grafana/loki/releases/download/v2.9.1/logcli-linux-amd64.zip -o /tmp/logcli-linux-amd64.zip
+curl -L --silent https://github.com/grafana/loki/releases/download/v2.9.2/logcli-linux-amd64.zip -o /tmp/logcli-linux-amd64.zip
 unzip /tmp/logcli-linux-amd64.zip -d ~/.local/bin/
 mv ~/.local/bin/logcli-linux-amd64 ~/.local/bin/logcli
 chmod +x ~/.local/bin/logcli
