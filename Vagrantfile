@@ -4,7 +4,7 @@
 Vagrant.configure("2") do |config|
 
     config.vm.box = "opensuse/Tumbleweed.x86_64"
-    config.vm.box_version = "1.0.20231006"
+    config.vm.box_version = "1.0.20231025"
 
     config.vm.hostname = 'loki'
     config.vm.network :private_network, ip: '192.168.56.10'
