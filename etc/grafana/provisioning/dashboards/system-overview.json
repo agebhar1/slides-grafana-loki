@@ -881,7 +881,7 @@
             "uid": "P8E80F9AEF21F6940"
           },
           "editorMode": "code",
-          "expr": "quantile_over_time(0.50, {job=\"containers\", service=\"loki\"}\n    |= \"grpc_logging.go\"\n    | logfmt\n    | __error__ = \"\"\n    | method=\"/frontendv2pb.FrontendForQuerier/QueryResult\"\n    | unwrap duration(duration) [$__range]) by (container)",
+          "expr": "quantile_over_time(0.50, {job=\"containers\", service=\"loki\"}\n    | logfmt\n    | __error__ = \"\"\n    | component=\"frontend\"\n    | query!=\"\"\n    | unwrap duration(duration) [$__range]) by (container)",
           "key": "Q-f37ef5ff-f194-49e3-8b2e-852727617a84-0",
           "queryType": "range",
           "refId": "A"
@@ -947,7 +947,7 @@
             "uid": "P8E80F9AEF21F6940"
           },
           "editorMode": "code",
-          "expr": "quantile_over_time(0.95, {job=\"containers\", service=\"loki\"}\n    |= \"grpc_logging.go\"\n    | logfmt\n    | __error__ = \"\"\n    | method=\"/frontendv2pb.FrontendForQuerier/QueryResult\"\n    | unwrap duration(duration) [$__range]) by (container)",
+          "expr": "quantile_over_time(0.95, {job=\"containers\", service=\"loki\"}\n    | logfmt\n    | __error__ = \"\"\n    | component=\"frontend\"\n    | query!=\"\"\n    | unwrap duration(duration) [$__range]) by (container)",
           "key": "Q-f37ef5ff-f194-49e3-8b2e-852727617a84-0",
           "queryType": "range",
           "refId": "A"
@@ -1013,7 +1013,7 @@
             "uid": "P8E80F9AEF21F6940"
           },
           "editorMode": "code",
-          "expr": "quantile_over_time(0.99, {job=\"containers\", service=\"loki\"}\n    |= \"grpc_logging.go\"\n    | logfmt\n    | __error__ = \"\"\n    | method=\"/frontendv2pb.FrontendForQuerier/QueryResult\"\n    | unwrap duration(duration) [$__range]) by (container)",
+          "expr": "quantile_over_time(0.99, {job=\"containers\", service=\"loki\"}\n    | logfmt\n    | __error__ = \"\"\n    | component=\"frontend\"\n    | query!=\"\"\n    | unwrap duration(duration) [$__range]) by (container)",
           "key": "Q-f37ef5ff-f194-49e3-8b2e-852727617a84-0",
           "queryType": "range",
           "refId": "A"
