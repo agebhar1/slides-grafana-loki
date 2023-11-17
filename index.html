@@ -435,11 +435,26 @@
             <h2>Promtail</h2>
             <ul>
               <li class="fragment">borrows Prometheus <a target="_blank" href="https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config">service discovery mechanism</a></li>
-              <li class="fragment">can tail logs from local (log) files and systemd journal</li>
+              <li class="fragment">tail logs from
+                <ul>
+                  <li>files on the same host (traditional, K8S pods, …)</li>
+                  <li>Systemd Journal (Linux)</li>
+                  <li>Windows Event Log</li>
+                  <li>Syslog (Receiver)</li>
+                  <li>Kafka</li>
+                  <li>…</li>
+                </ul>
+              </li>
+              <li class="fragment"><a target="_blank" href="https://grafana.com/docs/loki/latest/send-data/promtail/logrotation/#rename-and-create-recommend">recommends rename and create</a> for log rotation</li>
               <li class="fragment">native support for compressed files <code><pre class="inline">*.gz|*.z|*.bz2|*.tar.gz</pre></code></li>
               <li class="fragment">uses file to save current positions</li>
               <li class="fragment">exposes Prometheus metrics via <code><pre class="inline">/metrics</pre></code></li>
-              <li class="fragment">
+          </section>
+          <section>
+            <h2>Promtail <small>(cont'd)</small></h2>
+            <ul>
+              <!-- https://github.com/grafana/loki/tree/main/clients/pkg/logentry/stages -->
+              <li>
                 each job can run multiple pipelines w/ different <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/">stages</a>:
                 <ul>
                   <li class="fragment">filtering:&nbsp;
@@ -462,13 +477,15 @@
                   <li class="fragment">actions:&nbsp;
                     <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/timestamp/">timestamp</a>,&nbsp;
                     <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/output/">output</a>,&nbsp;
-                    <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/labels/">labels</a>,&nbsp;
+                    <a target="_blank" href="https://grafana.com/docs/loki/latest/send-data/promtail/stages/sampling/">sampling</a><small>&dagger;</small>,&nbsp;
+                    <a target="_blank" href="https://grafana.com/docs/loki/latest/send-data/promtail/stages/structured_metadata/">structured_metadata</a><small>&dagger; &ddagger;</small>,&nbsp;
                     <span style="border-bottom: 1px solid white;"><a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/stages/metrics/">metrics</a></span>,&nbsp;
                     …
+                    <br>
+                    <span class="note-inline">&dagger; since v2.9, &ddagger; experimental</span>
                   </li>
                 </ul>
               </li>
-              <li class="fragment">recommends rename and create for log rotation</li>
               <li class="fragment">
                 <a target="_blank" href="https://grafana.com/docs/loki/latest/clients/promtail/troubleshooting/">troubleshooting</a>, e.g. inspecting pipeline stages:<br>
                 <code>
