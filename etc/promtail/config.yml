@@ -50,14 +50,8 @@ scrape_configs:
       - source_labels: ["__journal__transport"]
         target_label: "transport"
 
-  - job_name: various
-    # https://grafana.com/docs/loki/latest/clients/promtail/configuration/#static_configs
-    static_configs:
-      - labels:
-          job: various
-          __path__: /mnt/log/*.log
-
   - job_name: various-metrics
+    # https://grafana.com/docs/loki/latest/clients/promtail/configuration/#static_configs
     static_configs:
       - labels:
           job: various
