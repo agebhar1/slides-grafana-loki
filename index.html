@@ -275,61 +275,71 @@
             </ul>
           </section>
           <section>
-            <h2>Chunk Format</h2>
+            <h2 style="margin-top: -1.5em;">Chunk Format</h2>
             <code>
-              <pre class="js:trim-whitespace" style="width: 48em">
+              <pre class="js:trim-whitespace" style="width: 53em">
                 ┌─────────────────────────────────────────────────────────────────────────────┐
                 │                         Header (Tenant, Labels, ...)                        │
                 ├─────────────────────────────────────────────────────────────────────────────┤
-                │                                     |                  |                    │
-                │        MagicNumber (4b)             │   version (1b)   │  compression (1b)  │
-                │          [0x012EE56A]               |       [3]        |                    │
-                ├─────────────────────────────────────────────────────────────────────────────┤&lt;─────┐
-                │   block-1 bytes (compressed)        |              checksum (4b)            │      │
-                ├─────────────────────────────────────────────────────────────────────────────┤      │
-                │   block-2 bytes (compressed)        |              checksum (4b)            │      │
-                ├─────────────────────────────────────────────────────────────────────────────┤      │
-                │                                    ...                                      │      │
-                ├─────────────────────────────────────────────────────────────────────────────┤      │
-                │   block-n bytes (compressed)        |              checksum (4b)            │      │
-                ├─────────────────────────────────────────────────────────────────────────────┤&lt;──┐  │
-                │                             #blocks (uvarint)                               │   │  │
-                ├─────────────────────────────────────────────────────────────────────────────┤   │  │
-                │ #entries(uvarint) | mint, maxt (varint) | offset, uncompSize, len (uvarint) │───┼──┘
+                |                         |                         |                         |
+                │     MagicNumber (4b)    |      version (1b)       │      encoding (1b)      │
+                │       [0x012EE56A]      |          [4]            |                         │
+                ├─────────────────────────────────────────────────────────────────────────────┤&lt;───────┐
+                │                       #structuredMetadata (uvarint)                         │        │
+                ├─────────────────────────────────────────────────────────────────────────────┤        │
+                │       len (label-1) (uvarint)       |            label-1 (bytes)            │ &dagger;      │
+                ├─────────────────────────────────────────────────────────────────────────────┤        │
+                │                                    ...                                      │        │
+                ├─────────────────────────────────────────────────────────────────────────────┤        │
+                │       len (label-n) (uvarint)       |            label-n (bytes)            │ &dagger;      │
+                ├─────────────────────────────────────────────────────────────────────────────┤        │
+                │                     checksum(from structuredMetadata)                       │        │
+                ├─────────────────────────────────────────────────────────────────────────────┤&lt;─────┐ │
+                │   block-1 bytes (&dagger;)                 |              checksum (4b)            │      │ │
+                ├─────────────────────────────────────────────────────────────────────────────┤      │ │
+                │                                    ...                                      │      │ │
+                ├─────────────────────────────────────────────────────────────────────────────┤      │ │
+                │   block-n bytes (&dagger;)                 |              checksum (4b)            │      │ │
+                ├─────────────────────────────────────────────────────────────────────────────┤&lt;──┐  │ │
+                │                             #blocks (uvarint)                               │   │  │ │
+                ├─────────────────────────────────────────────────────────────────────────────┤   │  │ │
+                │ #entries(uvarint) |mint, maxt (varint64)| offset, uncompSize, len (uvarint) │──────┘ │
+                ├─────────────────────────────────────────────────────────────────────────────┤   │    │
+                │                                    ...                                      │   │    │
+                ├─────────────────────────────────────────────────────────────────────────────┤   │    │
+                │ #entries(uvarint) |mint, maxt (varint64)| offset, uncompSize, len (uvarint) │   │    │
+                ├─────────────────────────────────────────────────────────────────────────────┤   │    │
+                │                           checksum(from blocks)                             │   │    │
+                ├─────────────────────────────────────────────────────────────────────────────┤   │    │
+                │     structuredMetadata len (8b)     |    structuredMetadata offset (8b)     │────────┘
                 ├─────────────────────────────────────────────────────────────────────────────┤   │
-                │ #entries(uvarint) | mint, maxt (varint) | offset, uncompSize, len (uvarint) │   │
-                ├─────────────────────────────────────────────────────────────────────────────┤   │
-                │                                    ...                                      │   │
-                ├─────────────────────────────────────────────────────────────────────────────┤   │
-                │ #entries(uvarint) | mint, maxt (varint) | offset, uncompSize, len (uvarint) │   │
-                ├─────────────────────────────────────────────────────────────────────────────┤   │
-                │                            checksum(from #blocks)                           │   │
-                ├─────────────────────────────────────────────────────────────────────────────┤   │
-                │                          #blocks section byte offset                        │───┘
+                │           blocks len (8b)           |          blocks offset (8b)           │───┘
                 └─────────────────────────────────────────────────────────────────────────────┘
               </pre>
             </code>
             <ul>
-              <li><code><pre class="inline">mint</pre></code>, <code><pre class="inline">maxt</pre></code> minimum/maximum Unix nanosecond timestamp</li>
+              <li>v4 used by schema v13 (structured metadata)</li>
               <li><code><pre class="inline">uncompSize</pre></code> since v3</li>
-              <li><code><pre class="inline">(u)variant</pre></code> Go package <pre class="inline">encoding/binary</pre></code></li>
+              <li><small>&dagger;</small> compressed w/ encoding</li>
+              <li><code><pre class="inline">mint</pre></code>, <code><pre class="inline">maxt</pre></code> minimum/maximum Unix nanosecond timestamp</li>
+              <li><code><pre class="inline">(u)varint</pre></code> Go package <pre class="inline">encoding/binary</pre></code></li>
             </ul>
           </section>
           <section>
             <h2>Block Format</h2>
             <code>
-              <pre class="js:trim-whitespace" style="width: 40em">
-                ┌─────────────────────────────────────────────────────────────────┐
-                │    ts (varint)    |     len (uvarint)    |     log-1 bytes      │
-                ├─────────────────────────────────────────────────────────────────┤
-                │    ts (varint)    |     len (uvarint)    |     log-2 bytes      │
-                ├─────────────────────────────────────────────────────────────────┤
-                │                              ...                                │
-                ├─────────────────────────────────────────────────────────────────┤
-                │    ts (varint)    |     len (uvarint)    |     log-n bytes      │
-                └─────────────────────────────────────────────────────────────────┘
-
-                &nbsp;                                                      uncompressed
+              <pre class="js:trim-whitespace" style="width: 68em">
+                ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+                │ ts (varint) | len (*) | log-1 bytes | len(from #symbols) | #symbols (*) | symbol-1 (*) | ... | symbol-2*n (*) │
+                ├───────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+                │ ts (varint) | len (*) | log-2 bytes | len(from #symbols) | #symbols (*) | symbol-1 (*) | ... | symbol-2*n (*) │
+                ├───────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+                │                                                      ...                                                      │
+                ├───────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+                │ ts (varint) | len (*) | log-n bytes | len(from #symbols) | #symbols (*) | symbol-1 (*) | ... | symbol-2*n (*) │
+                └───────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+                &nbsp;                                                                                               * = uvarint
+                &nbsp;                                                                                               uncompressed
               </pre>
             </code>
             <ul>
