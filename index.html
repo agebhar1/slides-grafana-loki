@@ -626,6 +626,22 @@
               </li>
             </ul>
           </section>
+          <section>
+            <h2>Template functions</h2>
+            <ul>
+              <li class="fragment">Go text template <code><pre class="inline">{{ … }}</pre></code></li>
+              <li class="fragment">used in <code><pre class="inline">| line_format</pre></code> and <code><pre class="inline">| label_format</pre></code></li>
+              <!-- https://github.com/grafana/loki/blob/main/pkg/logql/log/fmt.go -->
+              <li class="fragment">several functions:
+                <ul>
+                  <li>text: <code><pre class="inline">lower</pre></code>, <code><pre class="inline">upper</pre></code>, <code><pre class="inline">replace</pre></code>…</li>
+                  <li>numbers: <code><pre class="inline">add</pre></code>, <code><pre class="inline">sub</pre></code>, <code><pre class="inline">mul</pre></code>…</li>
+                  <li>date: <code><pre class="inline">now</pre></code>, <code><pre class="inline">toDate</pre></code>, <code><pre class="inline">toDateInZone</pre></code>…</li>
+                  <li><code><pre class="inline">b64enc</pre></code>, <code><pre class="inline">b64dec</pre></code>…</li>
+                </ul>
+              </li>
+            </ul>
+          </section>
         </section>
 
         <section>
