@@ -322,7 +322,7 @@
               <li><code><pre class="inline">uncompSize</pre></code> since v3</li>
               <li><small>&dagger;</small> compressed w/ encoding</li>
               <li><code><pre class="inline">mint</pre></code>, <code><pre class="inline">maxt</pre></code> minimum/maximum Unix nanosecond timestamp</li>
-              <li><code><pre class="inline">(u)varint</pre></code> Go package <pre class="inline">encoding/binary</pre></code></li>
+              <li><code><pre class="inline">(u)varint</pre></code> Go package <code><pre class="inline">encoding/binary</pre></code></li>
             </ul>
           </section>
           <section>
@@ -572,39 +572,39 @@
               <li class="fragment">Label filter expression
               <ul>
                 <li>value types: String, Duration, Number, Bytes</li>
-                <li>chain predicates: <pre class="inline">and</pre></code> (or <pre class="inline">,</pre></code>), <pre class="inline">or</pre></code></li>
+                <li>chain predicates: <code><pre class="inline">and</pre></code> (or <code><pre class="inline">,</pre></code>), <code><pre class="inline">or</pre></code></li>
               </ul>
               </li>
               <li class="fragment">Parser expression:
-                <pre class="inline">json</pre></code>,
-                <pre class="inline">logfmt</pre></code>,
-                <pre class="inline">pattern …</pre></code>,
-                <pre class="inline">regex …</pre></code>
+                <code><pre class="inline">json</pre></code>,
+                <code><pre class="inline">logfmt</pre></code>,
+                <code><pre class="inline">pattern …</pre></code>,
+                <code><pre class="inline">regex …</pre></code>
               </li>
-              <li class="fragment">others: <pre class="inline">line_format …</pre></code>, <pre class="inline">label_format …</pre>, <pre class="inline">drop …</pre></code></code></li>
+              <li class="fragment">others: <code><pre class="inline">line_format …</pre></code>, <code><pre class="inline">label_format …</pre>, <code><pre class="inline">drop …</pre></code></code></li>
             </ul>
           </section>
           <section>
             <h2>Metric queries</h2>
             <ul>
               <li class="fragment">Log (metadata) range aggregation (over duration):<br>
-                <pre class="inline">rate(…)</pre></code>,
-                <pre class="inline">count_over_time(…)</pre></code>,
-                <pre class="inline">bytes_rate(…)</pre></code>,<br>
-                <pre class="inline">bytes_over_time(…)</pre></code>,
-                <pre class="inline">absent_over_time(…)</pre></code>
+                <code><pre class="inline">rate(…)</pre></code>,
+                <code><pre class="inline">count_over_time(…)</pre></code>,
+                <code><pre class="inline">bytes_rate(…)</pre></code>,<br>
+                <code><pre class="inline">bytes_over_time(…)</pre></code>,
+                <code><pre class="inline">absent_over_time(…)</pre></code>
               </li>
               <li class="fragment">Unwrapped range aggregation (by label)
                 <ul>
-                  <li>requires <pre class="inline">unwrap &lt;function&gt; …</pre></code></li>
-                  <li>functions: <pre class="inline">duration_seconds(…)</pre></code>, <pre class="inline">bytes(…)</pre></code></li>
+                  <li>requires <code><pre class="inline">unwrap &lt;function&gt; …</pre></code></li>
+                  <li>functions: <code><pre class="inline">duration_seconds(…)</pre></code>, <code><pre class="inline">bytes(…)</pre></code></li>
                   <li>aggregations:
-                    <pre class="inline">rate(…)</pre></code>,
-                    <pre class="inline">rate_counter(…)</pre></code>,
-                    <pre class="inline">sum_over_time(…)</pre></code>,
-                    <pre class="inline">avg_over_time(…)</pre></code>,<br>
-                    <pre class="inline">max_over_time(…)</pre></code>,
-                    <pre class="inline">min_over_time(…)</pre></code>, …
+                    <code><pre class="inline">rate(…)</pre></code>,
+                    <code><pre class="inline">rate_counter(…)</pre></code>,
+                    <code><pre class="inline">sum_over_time(…)</pre></code>,
+                    <code><pre class="inline">avg_over_time(…)</pre></code>,<br>
+                    <code><pre class="inline">max_over_time(…)</pre></code>,
+                    <code><pre class="inline">min_over_time(…)</pre></code>, …
                   </li>
                 </ul>
               </li>
@@ -612,16 +612,16 @@
                 <ul>
                   <li>like PromQL, aggregate the elements of a single vector</li>
                   <li>over labels:
-                    <pre class="inline">sum(…)</pre></code>,
-                    <pre class="inline">avg(…)</pre></code>,
-                    <pre class="inline">min(…)</pre></code>, …
+                    <code><pre class="inline">sum(…)</pre></code>,
+                    <code><pre class="inline">avg(…)</pre></code>,
+                    <code><pre class="inline">min(…)</pre></code>, …
                   </li>
                   <li>of elements
-                    <pre class="inline">count(…)</pre></code>,
-                    <pre class="inline">topk(…)</pre></code>,
-                    <pre class="inline">bottom(…)</pre></code>
+                    <code><pre class="inline">count(…)</pre></code>,
+                    <code><pre class="inline">topk(…)</pre></code>,
+                    <code><pre class="inline">bottom(…)</pre></code>
                   </li>
-                  <li><pre class="inline">sort(…)</pre></code>, <pre class="inline">sort_desc(…)</pre></code> by sample value</li>
+                  <li><code><pre class="inline">sort(…)</pre></code>, <code><pre class="inline">sort_desc(…)</pre></code> by sample value</li>
                 </ul>
               </li>
             </ul>
