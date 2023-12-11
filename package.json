@@ -13,6 +13,6 @@
     "@types/reveal.js": "4.4.8",
     "reveal.js": "5.0.2",
     "typescript": "5.3.3",
-    "vite": "5.0.6"
+    "vite": "5.0.7"
   }
 }
