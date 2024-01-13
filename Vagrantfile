@@ -47,7 +47,7 @@ mkdir -p ~/{loki,prometheus,promtail/log}
 #
 # install Docker Compose
 #
-curl -L --silent https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-linux-x86_64 -o ~/.local/bin/docker-compose
+curl -L --silent https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-linux-x86_64 -o ~/.local/bin/docker-compose
 chmod +x ~/.local/bin/docker-compose
 
 #
