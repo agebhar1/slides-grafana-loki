@@ -1,5 +1,8 @@
 DOCKER_GID=480
 
+POSTGRES_DATA=/home/vagrant/postgres
+POSTGRES_USER=1000
+
 PROMETHEUS_DATA=/home/vagrant/prometheus
 PROMETHEUS_USER=1000
 

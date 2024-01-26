@@ -7,6 +7,25 @@ x-common: &labels
   io.github.agebhar1.project: observability
 
 services:
+  postgres:
+    image: postgres:16.1
+    volumes:
+      - ${POSTGRES_DATA:-postgres_data}:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=grafana
+    ports:
+      - 5432:5432
+    user: ${POSTGRES_USER:-root}
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 5s
+      timeout: 5s
+      # -- require Docker Engine > v25 --
+      # start_interval: 5s
+    labels:
+      io.github.agebhar1.project: observability
+
   prometheus:
     image: prom/prometheus:v2.49.1
     volumes:
@@ -32,8 +51,17 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=s3cr3t
+      - GF_DATABASE_TYPE=postgres
+      - GF_DATABASE_HOST=postgres:5432
+      - GF_DATABASE_USER=postgres
+      - GF_DATABASE_PASSWORD=secret
+      - GF_DATABASE_LOG_QUERIES=${GF_DATABASE_LOG_QUERIES:-false}
     ports:
       - 3000:3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
     restart: unless-stopped
     labels:
       <<: *labels
@@ -89,6 +117,7 @@ services:
       <<: *labels
 
 volumes:
+  postgres_data:
   prometheus_data:
   promtail_data:
   loki_data:

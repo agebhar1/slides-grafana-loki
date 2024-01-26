@@ -42,7 +42,7 @@ pushd /vagrant
 test -e .env || ln -s dotenv .env || cp dotenv .env
 popd
 
-mkdir -p ~/{loki,prometheus,promtail/log}
+mkdir -p ~/{loki,postgres,prometheus,promtail/log}
 
 #
 # install Docker Compose
