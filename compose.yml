@@ -26,6 +26,15 @@ services:
     labels:
       io.github.agebhar1.project: observability
 
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+    environment:
+      - DATA_SOURCE_URI=postgres:5432/grafana?sslmode=disable
+      - DATA_SOURCE_USER=postgres
+      - DATA_SOURCE_PASS=secret
+    labels:
+      <<: *labels
+
   prometheus:
     image: prom/prometheus:v2.49.1
     volumes:
