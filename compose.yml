@@ -12,8 +12,8 @@ services:
     volumes:
       - ${POSTGRES_DATA:-postgres_data}:/var/lib/postgresql/data
     environment:
-      - POSTGRES_PASSWORD=secret
-      - POSTGRES_DB=grafana
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: grafana
     ports:
       - 5432:5432
     user: ${POSTGRES_USER:-root}
@@ -29,9 +29,9 @@ services:
   postgres-exporter:
     image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
     environment:
-      - DATA_SOURCE_URI=postgres:5432/grafana?sslmode=disable
-      - DATA_SOURCE_USER=postgres
-      - DATA_SOURCE_PASS=secret
+      DATA_SOURCE_URI: postgres:5432/grafana?sslmode=disable
+      DATA_SOURCE_USER: postgres
+      DATA_SOURCE_PASS: secret
     labels:
       <<: *labels
 
@@ -58,13 +58,15 @@ services:
     volumes:
       - ./etc/grafana/provisioning:/etc/grafana/provisioning:ro
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=s3cr3t
-      - GF_DATABASE_TYPE=postgres
-      - GF_DATABASE_HOST=postgres:5432
-      - GF_DATABASE_USER=postgres
-      - GF_DATABASE_PASSWORD=secret
-      - GF_DATABASE_LOG_QUERIES=${GF_DATABASE_LOG_QUERIES:-false}
+      # [security]
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: s3cr3t
+      # [database]
+      GF_DATABASE_TYPE: postgres
+      GF_DATABASE_HOST: postgres:5432
+      GF_DATABASE_USER: postgres
+      GF_DATABASE_PASSWORD: secret
+      GF_DATABASE_LOG_QUERIES: ${GF_DATABASE_LOG_QUERIES:-false}
     ports:
       - 3000:3000
     depends_on:
