@@ -36,7 +36,7 @@ services:
       <<: *labels
 
   prometheus:
-    image: prom/prometheus:v2.50.0
+    image: prom/prometheus:v2.50.1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./etc/prometheus:/etc/prometheus:ro
