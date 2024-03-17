@@ -1,6 +1,4 @@
 ---
-version: "3.8"
-
 x-common: &labels
   hostname: ${HOSTNAME}
   io.prometheus/scrape: true
