@@ -42,13 +42,13 @@ pushd /vagrant
 test -e .env || ln -s dotenv .env || cp dotenv .env
 popd
 
-mkdir -p ~/{loki,postgres,prometheus,promtail/log}
+mkdir -p ~/{.docker/cli-plugins,loki,postgres,prometheus,promtail/log}
 
 #
 # install Docker Compose
 #
-curl -L --silent https://github.com/docker/compose/releases/download/v2.26.1/docker-compose-linux-x86_64 -o ~/.local/bin/docker-compose
-chmod +x ~/.local/bin/docker-compose
+curl -L --silent https://github.com/docker/compose/releases/download/v2.26.1/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+chmod +x ~/.docker/cli-plugins/docker-compose
 
 #
 # install Grafana logcli

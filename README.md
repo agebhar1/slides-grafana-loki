@@ -47,7 +47,7 @@ Start the containers by:
 $ vagrant ssh
 Have a lot of fun...
 vagrant@loki:~> cd /vagrant/
-vagrant@loki:/vagrant> docker-compose up -d
+vagrant@loki:/vagrant> docker compose up -d
 …
 ```
 
