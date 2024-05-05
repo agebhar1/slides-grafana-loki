@@ -55,6 +55,11 @@ query_range:
 # https://grafana.com/docs/loki/latest/configuration/#ingester
 ingester:
   chunk_encoding: snappy # [<string> | default = "gzip"] The algorithm to use for compressing chunk. (none, gzip, lz4-64k, snappy,  lz4-256k, lz4-1M, lz4, flate, zstd)
+  wal:
+    flush_on_shutdown: true # [<boolean> | default = false] When WAL is enabled, should chunks be flushed to long-term storage on shutdown.
+
+pattern_ingester:
+  enabled: true
 
 storage_config:
   aws:
@@ -76,11 +81,13 @@ schema_config:
       index:
         prefix: tsdb_index_
         period: 24h
+      chunks:
+        prefix: tsdb_chunks_
+        period: 24h
 
 # https://grafana.com/docs/loki/latest/configuration/#compactor
 compactor:
   working_directory: /var/lib/loki/tmp
-  shared_store: filesystem
 
 # https://grafana.com/docs/loki/latest/configuration/#limits_config
 limits_config:

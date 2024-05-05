@@ -952,6 +952,36 @@ EOF
         </section>
       </div>
     </div>
+
+    <template>
+      <h2>Loki v3.0.x</h2>
+      <a href="https://grafana.com/docs/loki/latest/setup/upgrade/#300">Upgrade to 3.0</a>
+      <pre>
+        <a href="https://grafana.com/docs/loki/next/reference/loki-http-api/#deprecated-endpoints">checking for config changes</a>
+        <code>
+          export NEW_LOKI=3.0.0
+          export OLD_LOKI=2.9.7
+          diff --color=always --side-by-side \
+              &lt;(docker run --rm -t -v "${PWD}":/config grafana/loki:${OLD_LOKI} -config.file=/config/${CONFIG_FILE} -print-config-stderr 2&gt;&1 | sed '/Starting Loki/q' | tr -d '\r') \
+              &lt;(docker run --rm -t -v "${PWD}":/config grafana/loki:${NEW_LOKI} -config.file=/config/${CONFIG_FILE} -print-config-stderr 2&gt;&1 | sed '/Starting Loki/q' | tr -d '\r') \
+              | less -R
+        </code>
+      </pre>
+      <ul>
+        <li>Structured metadata is enabled by default and requires tsdb and v13 schema or Loki won’t start.</li>
+        <li>The shared_store config is removed.
+          <ul>
+            <li>Going forward the object_store setting in the period_config will be used to configure the store for the index. This enforces chunks and index files to reside together in the same storage bucket for a given period.</li>
+          </ul>
+        </li>
+        <li></li>
+        <li>https://grafana.com/docs/loki/next/reference/loki-http-api/#deprecated-endpoints</li>
+        <li>volume_results_cache.embedded_cache.enabled = true (default)</li>
+        <li>instant_metric_results_cache.embedded_cache.enabled = true (default)</li>
+        <li>series_results_cache.embedded_cache.enabled = true (default)</li>
+      </ul>
+    </template>
+
     <!-- https://github.com/astefanutti/decktape -->
     <script type="module" src="/src/main.ts"></script>
   </body>
