@@ -29,3 +29,15 @@ scrape_configs:
         target_label: "container"
       - source_labels: ["__meta_docker_container_label_hostname"]
         target_label: "instance"
+  
+  - job_name: minio-bucket
+    metrics_path: /minio/v2/metrics/bucket
+    scheme: http
+    static_configs:
+      - targets: ['minio:9000']
+
+  - job_name: minio-resource
+    metrics_path: /minio/v2/metrics/resource
+    scheme: http
+    static_configs:
+      - targets: ['minio:9000']

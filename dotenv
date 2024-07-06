@@ -10,4 +10,7 @@ LOKI_DATA=/home/vagrant/loki
 LOKI_USER=1000
 LOKI_LOG_LEVEL=debug
 
+MINIO_DATA=/home/vagrant/minio
+MINIO_USER=1000
+
 LOGFILES=/home/vagrant/promtail/log

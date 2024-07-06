@@ -91,6 +91,37 @@ services:
     labels:
       <<: *labels
 
+  minio:
+    image: minio/minio:RELEASE.2024-07-04T14-25-45Z
+    volumes:
+      - ${MINIO_DATA:-minio_data}:/data
+    environment:
+      MINIO_PROMETHEUS_AUTH_TYPE: public
+      MINIO_PROMETHEUS_URL: http://prometheus:9090
+      MINIO_PROMETHEUS_JOB_ID: containers
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: minios3cr3t
+    command:
+      - server
+      - /data
+      - --console-address=:9001
+    ports:
+      - 9000:9000
+      - 9001:9001
+    user: ${MINIO_USER}:${DOCKER_GID}
+    restart: unless-stopped
+    healthcheck:
+      test: mc ready local/
+      interval: 1m30s
+      timeout: 5s
+      # -- requires Docker Engine >= v25 --
+      start_period: 30s
+      start_interval: 2s
+    labels:
+      <<: *labels
+      io.prometheus/port: 9000
+      io.prometheus/path: /minio/v2/metrics/cluster
+
   # https://grafana.com/docs/grafana-cloud/quickstart/docker-compose-linux/
 
   promtail:
@@ -131,3 +162,4 @@ volumes:
   prometheus_data:
   promtail_data:
   loki_data:
+  minio_data:

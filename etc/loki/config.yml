@@ -7,10 +7,6 @@ auth_enabled: false
 # https://grafana.com/docs/loki/latest/configuration/#server
 common:
   path_prefix: /var/lib/loki
-  storage:
-    filesystem:
-      chunks_directory: /var/lib/loki/chunks
-      rules_directory: /var/lib/loki/rules
   replication_factor: 1
   ring:
     kvstore:
@@ -60,19 +56,25 @@ query_range:
 ingester:
   chunk_encoding: snappy # [<string> | default = "gzip"] The algorithm to use for compressing chunk. (none, gzip, lz4-64k, snappy,  lz4-256k, lz4-1M, lz4, flate, zstd)
 
+storage_config:
+  aws:
+    endpoint: minio:9000
+    s3forcepathstyle: true
+    bucketnames: loki-data
+    access_key_id: loki
+    secret_access_key: lokis3cr3t
+    insecure: true
+
 schema_config:
   configs:
     # https://grafana.com/docs/loki/latest/operations/storage/tsdb/
     # https://github.com/grafana/loki/issues/9105 -- Mark all alternative stores but TSDB as deprecated
-    - from: 2023-04-20
+    - from: 2023-07-07
       store: tsdb
-      object_store: filesystem
+      object_store: s3
       schema: v12
       index:
         prefix: tsdb_index_
-        period: 24h
-      chunks:
-        prefix: tsdb_chunks_
         period: 24h
 
 # https://grafana.com/docs/loki/latest/configuration/#compactor

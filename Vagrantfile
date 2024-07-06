@@ -42,7 +42,7 @@ pushd /vagrant
 test -e .env || ln -s dotenv .env || cp dotenv .env
 popd
 
-mkdir -p ~/{.docker/cli-plugins,loki,postgres,prometheus,promtail/log}
+mkdir -p ~/{.docker/cli-plugins,loki,minio,postgres,prometheus,promtail/log}
 
 #
 # install Docker Compose
@@ -87,6 +87,33 @@ cat << 'EOF' >> ~/.bashrc
 
 export LOKI_ADDR=http://localhost:3100
 eval "$(logcli --completion-script-bash)"
+EOF
+
+#
+# install MinIO client
+#
+MINIO_VERSION=2024-07-03T20-17-25Z
+
+curl -L --silent --fail https://dl.min.io/client/mc/release/linux-amd64/mc.RELEASE.${MINIO_VERSION} -o ~/.local/bin/mcli || curl -L --silent --fail https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.${MINIO_VERSION} -o ~/.local/bin/mcli
+chmod +x ~/.local/bin/mcli
+
+newgrp - docker <<EOF
+docker compose -f /vagrant/compose.yml up --quiet-pull --no-color --detach minio
+EOF
+
+# https://min.io/docs/minio/linux/reference/minio-mc/minio-client-settings.html
+while ! mcli alias set local http://localhost:9000 admin minios3cr3t; do
+    sleep 1
+done
+
+# https://min.io/docs/minio/container/administration/object-management/object-retention.html#tutorials
+mcli admin user add local/ loki lokis3cr3t
+mcli admin policy attach local/ readwrite --user loki
+mcli mb --with-lock local/loki-data
+mcli retention set --default governance 30d local/loki-data
+
+newgrp - docker <<EOF
+docker compose -f /vagrant/compose.yml down
 EOF
 
 SCRIPT
