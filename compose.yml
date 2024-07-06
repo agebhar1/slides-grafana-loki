@@ -17,10 +17,11 @@ services:
     user: ${POSTGRES_USER:-root}
     healthcheck:
       test: pg_isready -U postgres
-      interval: 5s
+      interval: 1m30s
       timeout: 5s
-      # -- require Docker Engine > v25 --
-      # start_interval: 5s
+      # -- requires Docker Engine >= v25 --
+      start_period: 30s
+      start_interval: 2s
     labels:
       io.github.agebhar1.project: observability
 
