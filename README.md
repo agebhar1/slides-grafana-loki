@@ -6,6 +6,7 @@ From the Website of Grafana Loki:
 
 Presented at:
 * DevOps Meetup Leipzig #2 - Exploring Generative AI and Unleashing Grafana Loki -- 2023/08/23
+* DevOps Meetup Thüringen - DevOps meets Machine Learning & Grafana Loki -- 2023/11/21
 
 ## Slides
 
