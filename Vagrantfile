@@ -92,9 +92,12 @@ EOF
 #
 # install MinIO client
 #
-MINIO_VERSION=2024-07-03T20-17-25Z
+MINIO_VERSION=2024-07-16T23-46-41Z
 
-curl -L --silent --fail https://dl.min.io/client/mc/release/linux-amd64/mc.RELEASE.${MINIO_VERSION} -o ~/.local/bin/mcli || curl -L --silent --fail https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.${MINIO_VERSION} -o ~/.local/bin/mcli
+curl -L --silent --fail https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.${MINIO_VERSION} -o ~/.local/bin/mcli || \
+    curl -L --silent --fail https://dl.min.io/client/mc/release/linux-amd64/mc.RELEASE.${MINIO_VERSION} -o ~/.local/bin/mcli || \
+    curl -L --silent --fail https://dl.min.io/client/mc/release/linux-amd64/mc -o ~/.local/bin/mcli
+
 chmod +x ~/.local/bin/mcli
 
 newgrp - docker <<EOF
