@@ -92,7 +92,7 @@ EOF
 #
 # install MinIO client
 #
-MINIO_VERSION=2024-08-03T04-33-23Z
+MINIO_VERSION=2024-08-29T01-40-52Z 
 
 curl -L --silent --fail https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.${MINIO_VERSION} -o ~/.local/bin/mcli || \
     curl -L --silent --fail https://dl.min.io/client/mc/release/linux-amd64/mc.RELEASE.${MINIO_VERSION} -o ~/.local/bin/mcli || \
