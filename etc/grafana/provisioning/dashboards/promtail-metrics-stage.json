@@ -18,12 +18,12 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
-    "id": 4,
     "links": [],
     "liveNow": false,
     "panels": [
       {
         "datasource": {
+          "default": false,
           "type": "prometheus",
           "uid": "PBFA97CFB590B2093"
         },
@@ -33,11 +33,13 @@
               "mode": "palette-classic"
             },
             "custom": {
+              "axisBorderShow": false,
               "axisCenteredZero": false,
               "axisColorMode": "text",
               "axisLabel": "",
               "axisPlacement": "auto",
               "barAlignment": 0,
+              "barWidthFactor": 0.6,
               "drawStyle": "line",
               "fillOpacity": 0,
               "gradientMode": "none",
@@ -46,6 +48,7 @@
                 "tooltip": false,
                 "viz": false
               },
+              "insertNulls": false,
               "lineInterpolation": "smooth",
               "lineWidth": 1,
               "pointSize": 5,
@@ -89,10 +92,7 @@
         "id": 2,
         "options": {
           "legend": {
-            "calcs": [
-              "lastNotNull",
-              "mean"
-            ],
+            "calcs": [],
             "displayMode": "table",
             "placement": "right",
             "showLegend": true
@@ -110,7 +110,7 @@
               "uid": "PBFA97CFB590B2093"
             },
             "editorMode": "code",
-            "expr": "rate(promtail_custom_log_bytes_total{job=\"containers\", container=\"vagrant-promtail-1\"}[1m])",
+            "expr": "sum by (filename) (rate(promtail_custom_log_bytes_total{filename=~\".+\"}[1m]))",
             "format": "time_series",
             "instant": false,
             "legendFormat": "{{filename}}",
@@ -118,11 +118,12 @@
             "refId": "A"
           }
         ],
-        "title": "Log Byte Rate",
+        "title": "Log Byte Rate [1m]",
         "type": "timeseries"
       },
       {
         "datasource": {
+          "default": false,
           "type": "prometheus",
           "uid": "PBFA97CFB590B2093"
         },
@@ -132,11 +133,13 @@
               "mode": "palette-classic"
             },
             "custom": {
+              "axisBorderShow": false,
               "axisCenteredZero": false,
               "axisColorMode": "text",
               "axisLabel": "",
               "axisPlacement": "auto",
               "barAlignment": 0,
+              "barWidthFactor": 0.6,
               "drawStyle": "line",
               "fillOpacity": 0,
               "gradientMode": "none",
@@ -145,6 +148,7 @@
                 "tooltip": false,
                 "viz": false
               },
+              "insertNulls": false,
               "lineInterpolation": "linear",
               "lineWidth": 1,
               "pointSize": 5,
@@ -187,10 +191,7 @@
         "id": 3,
         "options": {
           "legend": {
-            "calcs": [
-              "lastNotNull",
-              "mean"
-            ],
+            "calcs": [],
             "displayMode": "table",
             "placement": "right",
             "showLegend": true
@@ -207,14 +208,14 @@
               "uid": "PBFA97CFB590B2093"
             },
             "editorMode": "code",
-            "expr": "rate(promtail_custom_log_lines_total{job=\"containers\",container=\"vagrant-promtail-1\"}[1m])",
+            "expr": "sum by (filename) (rate(promtail_custom_log_lines_total{filename=~\".+\"}[1m]))",
             "instant": false,
             "legendFormat": "{{filename}}",
             "range": true,
             "refId": "A"
           }
         ],
-        "title": "Log Lines Rate",
+        "title": "Log Lines Rate [1m]",
         "type": "timeseries"
       },
       {
@@ -256,8 +257,7 @@
       }
     ],
     "refresh": "5s",
-    "schemaVersion": 38,
-    "style": "dark",
+    "schemaVersion": 39,
     "tags": [],
     "templating": {
       "list": []
@@ -272,4 +272,4 @@
     "uid": "b425a9d0-8f33-489a-948e-54bbf8810d56",
     "version": 1,
     "weekStart": ""
-  }
+}
