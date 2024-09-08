@@ -423,6 +423,25 @@
               </ul>
             </aside>
           </section>
+          <section>
+            <h2>Labels</h2>
+          </section>
+          <section>
+            <h3>Best Practices</h3>
+            <p>TODO</p>
+          </section>
+          <section>
+            <h3>Structured Metadata</h3>
+            <!-- https://grafana.com/docs/loki/v2.9.x/get-started/labels/structured-metadata/ -->
+            <ul>
+              <li class="fragment">GA v2.9.4 (experimental since v2.9.0)</li>
+              <li class="fragment">aim: low cardinality labels</li>
+              <li class="fragment">requires chunk format v4</li>
+              <li class="fragment">attach metadata w/o indexing</li>
+              <li class="fragment">high cardinality (e.g. k8s pod name, process ID)</li>
+              <li class="fragment">Antipattern: extract & attach (meta) data already exists in log line</li>
+            </ul>
+          </section>
         </section>
 
         <section>
@@ -528,6 +547,14 @@
                   <li class="fragment">Histogram</li>
                 </ul>
               </li>
+            </ul>
+          </section>
+          <section>
+            <h3>Structured Metadata Stage</h3>
+            <ul>
+              <li class="fragment">takes data from extracted map (json, logfmt, …)</li>
+              <li class="fragment">updates structured metadata (k/v map)</li>
+              <li class="fragment">remember antipatern &rarr; use replace stage</li>
             </ul>
           </section>
           <section>
@@ -740,6 +767,67 @@
                 sum(rate({app=~"k6", format="logfmt"}[$__interval] | logfmt | unwrap bytes)) by (method)
               </pre>
             </code>
+          </section>
+          <section data-visibility="hidden">
+            <h3>Structured Metadata</h3>
+            <!--
+            cat structured-metadata.log | ~/downloads/promtail -config.file=etc/promtail/config.yml  --stdin --dry-run --inspect 
+            Clients configured:
+            ----------------------
+            url: http://loki:3100/loki/api/v1/push
+            batchwait: 1s
+            batchsize: 1048576
+            follow_redirects: true
+            enable_http2: true
+            backoff_config:
+              min_period: 500ms
+              max_period: 5m0s
+              max_retries: 10
+            timeout: 10s
+            tenant_id: ""
+            drop_rate_limited_batches: false
+            stream_lag_labels: ""
+
+            [inspect: logfmt stage]: 
+            {stages.Entry}.Extracted["stream"]:
+                    +: stderr
+            {stages.Entry}.Extracted["traceID"]:
+                    +: 0242ac120002
+            [inspect: replace stage]: 
+            {stages.Entry}.Entry.Entry.Line:
+                    -: time=2019-04-30T02:12:41.8443515Z log="log message" traceID=0242ac120002 stream=stderr
+                    +: time=2019-04-30T02:12:41.8443515Z log="log message" stream=stderr
+            [inspect: labels stage]: 
+            {stages.Entry}.Entry.Labels:
+                    -: {job="various"}
+                    +: {job="various", stream="stderr"}
+            2024-09-15T19:12:39.312295224+0200      {job="various", stream="stderr"}        time=2019-04-30T02:12:41.8443515Z log="log message" stream=stderr            
+            -->
+            <!--
+            echo 'time=2019-04-30T02:12:41.8443515Z log="log message" stream=stderr traceID=0242ac120002' >> ~/promtail/log/structured-metadata.log
+            --- chunks-inspect ---
+            Metadata length: 245
+            Data length: 231
+            UserID: fake
+            From: 2024-09-08 14:51:31.867000 UTC
+            Through: 2024-09-08 14:51:31.868000 UTC (1ms)
+            Labels:
+                    __name__ = logs
+                    filename = /mnt/log/structured-metadata.log
+                    job = various
+                    stream = stderr
+            Format (Version): 4
+            Encoding: snappy
+            Found 1 block(s)
+            Minimum time (from first block): 2024-09-08 14:51:31.867470 UTC
+            Maximum time (from last block): 2024-09-08 14:51:31.867470 UTC
+
+            Block    0: position:       50, original length:    118, minT: 2024-09-08 14:51:31.867470 UTC maxT: 2024-09-08 14:51:31.867470 UTC
+            2024-09-08 14:51:31.867470 UTC  time=2019-04-30T02:12:41.8443515Z log="log message" stream=stderr traceID=0242ac120002
+            Structured Metadata:
+                    traceID = 0242ac120002
+            Total chunk size of uncompressed data: 113 compressed data: 231 ratio: 0.489
+            -->
           </section>
         </section>
 

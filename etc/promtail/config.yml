@@ -56,6 +56,7 @@ scrape_configs:
       - labels:
           job: various
           __path__: /mnt/log/*.log
+          __path_exclude__: /mnt/log/structured-metadata.log
     pipeline_stages:
       # https://grafana.com/docs/loki/latest/clients/promtail/stages/metrics/
       - metrics:
@@ -76,3 +77,21 @@ scrape_configs:
               match_all: true
               count_entry_bytes: true
               action: add
+
+  - job_name: structured-metadata
+    # https://grafana.com/docs/loki/latest/clients/promtail/configuration/#static_configs
+    static_configs:
+      - labels:
+          job: various
+          __path__: /mnt/log/structured-metadata.log
+    pipeline_stages:
+      - logfmt:
+          mapping:
+            stream:
+            traceID:
+      - replace:
+          expression: "(traceID=[0-9a-c]+\\s?)"
+      - labels:
+          stream:
+      - structured_metadata:
+          traceID:
