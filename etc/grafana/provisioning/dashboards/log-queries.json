@@ -18,8 +18,8 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
+  "id": 6,
   "links": [],
-  "liveNow": false,
   "panels": [
     {
       "collapsed": false,
@@ -39,6 +39,10 @@
         "type": "loki",
         "uid": "P8E80F9AEF21F6940"
       },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "gridPos": {
         "h": 6,
         "w": 24,
@@ -56,6 +60,7 @@
         "sortOrder": "Descending",
         "wrapLogMessage": false
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -76,6 +81,10 @@
         "type": "loki",
         "uid": "P8E80F9AEF21F6940"
       },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "gridPos": {
         "h": 6,
         "w": 24,
@@ -93,6 +102,7 @@
         "sortOrder": "Descending",
         "wrapLogMessage": false
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -113,6 +123,10 @@
         "type": "loki",
         "uid": "P8E80F9AEF21F6940"
       },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "gridPos": {
         "h": 6,
         "w": 24,
@@ -130,6 +144,7 @@
         "sortOrder": "Descending",
         "wrapLogMessage": false
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -150,6 +165,10 @@
         "type": "loki",
         "uid": "P8E80F9AEF21F6940"
       },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "gridPos": {
         "h": 6,
         "w": 24,
@@ -167,6 +186,7 @@
         "sortOrder": "Descending",
         "wrapLogMessage": false
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -267,7 +287,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "10.0.3",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -275,7 +295,7 @@
             "uid": "P8E80F9AEF21F6940"
           },
           "editorMode": "code",
-          "expr": "{job=\"systemd-journal\"}                                                # users invoked `sudo`\n    |~ `pam_unix\\([a-z]+:session\\)`\n    |= \"opened\"\n    | pattern \"pam_unix(<type>:session): session opened for user <_> by <user>(uid=<_>)\"\n    | __error__ = \"\"\n    | label_format type=\"{{.type}}\"\n    | line_format \"{{.user}}\"",
+          "expr": "{job=\"journal\", syslog_identifier=\"sshd-session\"}                                                # users invoked `sudo`\n    |~ `pam_unix\\([a-z]+:session\\)`\n    |= \"opened\"\n    | pattern \"pam_unix(<type>:session): session opened for user <_> by <user>(uid=<_>)\"\n    | __error__ = \"\"\n    | label_format type=\"{{.type}}\"\n    | line_format \"{{.user}}\"",
           "queryType": "range",
           "refId": "A"
         }
@@ -360,6 +380,10 @@
         "type": "loki",
         "uid": "P8E80F9AEF21F6940"
       },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "gridPos": {
         "h": 9,
         "w": 12,
@@ -373,10 +397,11 @@
         "prettifyLogMessage": false,
         "showCommonLabels": false,
         "showLabels": false,
-        "showTime": false,
+        "showTime": true,
         "sortOrder": "Descending",
         "wrapLogMessage": false
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -384,7 +409,7 @@
             "uid": "P8E80F9AEF21F6940"
           },
           "editorMode": "code",
-          "expr": "{job=\"systemd-journal\"}",
+          "expr": "{job=\"journal\"} | line_format \"[{{ .hostname }}|{{ .syslog_identifier }}] {{ __line__ }}\"",
           "queryType": "range",
           "refId": "A"
         }
@@ -393,9 +418,9 @@
       "type": "logs"
     }
   ],
+  "preload": false,
   "refresh": "5s",
-  "schemaVersion": 38,
-  "style": "dark",
+  "schemaVersion": 40,
   "tags": [
     "systemd"
   ],
@@ -410,6 +435,6 @@
   "timezone": "",
   "title": "Log Queries",
   "uid": "c8f55f86-6b68-4919-a00e-fadb98b90b51",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

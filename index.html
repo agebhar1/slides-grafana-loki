@@ -344,6 +344,7 @@
             </code>
             <ul>
               <li>compressed with gzip, snappy or disabled</li>
+              <li>symbol &rarr; <small><code>key=2*i</code>,<br><code>value=2*i+1</code></small></li>
               <li><code><pre class="inline">ts</pre></code> Unix nanosecond timestamp</li>
               <li><code><pre class="inline">len</pre></code> bytes of log entry</li>
               <li class="fragment">Loki Dev Tool: <a target="_blank" href="https://github.com/grafana/loki/tree/main/cmd/chunks-inspect">chunks-inspect</a></li>
@@ -422,6 +423,168 @@
                 </ul>
               </ul>
             </aside>
+          </section>
+          <section>
+            <h2>Labels</h2>
+          </section>
+          <section>
+            <h3>Best Practices</h3>
+            <ul>
+              <li class="fragment">static labels (like regions, clusters, servers)
+                <ul>
+                  <li>to make it easier to query logs</li>
+                </ul>
+              </li>
+              <li class="fragment">use dynamic labels sparingly
+                <ul>
+                  <li>low label cardinality, high &rarr; many streams (must be loaded!)</li>
+                  <li>long-lived values (e.g. initial path segment on HTTP)</li>
+                  <li>add label for something until you know you need it</li>
+                  <li>will be used frequently in queries</li>
+                  <li>use structured metadata if possible <br>(often parsed, high cardinality, expensive extraction)</li>
+                </ul>
+              </li>
+              <li class="fragment">must always be bounded (&#x2933; unbounded number of streams)</li>
+              <li class="fragment">be aware of dynamic labels applied by clients</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Best Practices <small>(cont'd)</small></h3>
+            <h4>debugging high cardinality</h4>
+            use Series API or <code><pre class="inline">logcli series --analyze-labels</pre></code>
+            <code>
+              <pre class="js:trim-whitespace" style="width: 80em">
+                $ logcli series --since=3h --analyze-labels '{}'
+                2024/12/15 15:44:33 http://localhost:3100/loki/api/v1/series?end=1734273873655967479&match=%7B%7D&start=1734263073655967479
+                Total Streams:  4
+                Unique Labels:  5
+
+                Label Name         Unique Values  Found In Streams
+                service            3              3
+                container          3              3
+                job                2              4
+                hostname           1              3
+                syslog_identifier  1              1
+              </pre>
+            </code>
+            <code>
+              <pre class="js:trim-whitespace" style="width: 80em">
+                $ logcli series --since=3h '{}'
+                2024/12/15 15:44:11 http://localhost:3100/loki/api/v1/series?end=1734273851263938421&match=%7B%7D&start=1734263051263938421
+                {hostname="loki", job="journal", syslog_identifier="kernel"}
+                {container="vagrant-postgres-1", job="containers", service="postgres"}
+                {container="vagrant-loki-1", hostname="loki", job="containers", service="loki"}
+                {container="vagrant-grafana-1", hostname="loki", job="containers", service="grafana"}
+              </pre>
+            </code>
+          </section>
+          <section>
+            <!-- https://grafana.com/docs/loki/latest/get-started/labels/structured-metadata/ -->
+            <h3>Structured Metadata</h3>
+            <ul>
+              <li>GA v2.9.4 (experimental since v2.9.0), requires chunk format v4</li>
+              <li class="fragment">attach metadata w/o indexing / including in log line content
+                <ul>
+                  <li>often required in queries but high cardinality and expensive to extract</li>
+                </ul>
+              </li>
+              <li class="fragment">use(d) if ingesting in OpenTelemetry format</li>
+              <!-- https://grafana.com/docs/loki/v2.9.x/get-started/labels/structured-metadata/
+                It is an antipattern to extract information that already exists in your log lines and put it into structured metadata.
+              -->
+            </ul>
+<!--
+$ cat << EOF > structured-metadata.yml
+---
+# https://grafana.com/docs/loki/latest/clients/promtail/configuration/
+server:
+  http_listen_port: 9081
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: structured-metadata
+    # https://grafana.com/docs/loki/latest/clients/promtail/configuration/#static_configs
+    static_configs:
+      - labels:
+          job: structured-metadata
+          __path__: /mnt/log/structured-metadata-example.log
+    pipeline_stages:
+      - logfmt:
+          mapping:
+            stream:
+            traceID:
+      - replace:
+          expression: "(traceID=[0-9a-c]+\\s?)"
+      - labels:
+          stream:
+      - structured_metadata:
+          traceID:
+EOF
+-->         <!--
+              $ echo "time=2019-04-30T02:12:41.8443515Z log=\"log message\" traceID=0242ac120002 stream=stderr" | promtail -config.file=structured-metadata.yml --stdin --dry-run --inspect
+              Clients configured:
+              ----------------------
+              url: http://loki:3100/loki/api/v1/push
+              batchwait: 1s
+              batchsize: 1048576
+              follow_redirects: true
+              enable_http2: true
+              backoff_config:
+                min_period: 500ms
+                max_period: 5m0s
+                max_retries: 10
+              timeout: 10s
+              tenant_id: ""
+              drop_rate_limited_batches: false
+              stream_lag_labels: ""
+
+              [inspect: logfmt stage]:
+              {stages.Entry}.Extracted["stream"]:
+                      +: stderr
+              {stages.Entry}.Extracted["traceID"]:
+                      +: 0242ac120002
+              [inspect: replace stage]:
+              {stages.Entry}.Entry.Entry.Line:
+                      -: time=2019-04-30T02:12:41.8443515Z log="log message" traceID=0242ac120002 stream=stderr
+                      +: time=2019-04-30T02:12:41.8443515Z log="log message" stream=stderr
+              [inspect: labels stage]:
+              {stages.Entry}.Entry.Labels:
+                      -: {__path__="/mnt/log/structured-metadata-example.log", job="structured-metadata"}
+                      +: {__path__="/mnt/log/structured-metadata-example.log", job="structured-metadata", stream="stderr"}
+              2024-12-16T15:25:32.56309801+0100       {__path__="/mnt/log/structured-metadata-example.log", job="structured-metadata", stream="stderr"}
+
+              $ echo "time=2019-04-30T02:12:41.8443515Z log=\"log message\" traceID=0242ac120002 stream=stderr" >> promtail/log/structured-metadata-example.log
+              $ ~/src/github.com/agebhar1/loki/cmd/chunks-inspect/chunks-inspect -b -l ~/downloads/193cfe4973b_193cfe4973c_27424b05 
+
+              Chunks file: /home/agebhar1/downloads/193cfe4973b_193cfe4973c_27424b05
+              Metadata length: 266
+              Data length: 210
+              UserID: fake
+              From: 2024-12-16 14:34:44.923000 UTC
+              Through: 2024-12-16 14:34:44.924000 UTC (1ms)
+              Labels:
+                      __name__ = logs
+                      filename = /mnt/log/structured-metadata-example.log
+                      job = structured-metadata
+                      stream = stderr
+              Format (Version): 4
+              Encoding: snappy
+              Found 1 block(s)
+              Minimum time (from first block): 2024-12-16 14:34:44.923089 UTC
+              Maximum time (from last block): 2024-12-16 14:34:44.923089 UTC
+
+              Block    0: position:       50, original length:     97, minT: 2024-12-16 14:34:44.923089 UTC maxT: 2024-12-16 14:34:44.923089 UTC
+              2024-12-16 14:34:44.923089 UTC  time=2019-04-30T02:12:41.8443515Z log="log message" stream=stderr
+              Structured Metadata:
+                      traceID = 0242ac120002
+              Total chunk size of uncompressed data: 92 compressed data: 210 ratio: 0.438
+            -->
           </section>
         </section>
 
@@ -528,6 +691,14 @@
                   <li class="fragment">Histogram</li>
                 </ul>
               </li>
+            </ul>
+          </section>
+          <section>
+            <h3>Structured Metadata Stage</h3>
+            <ul>
+              <li class="fragment">takes data from extracted map (json, logfmt, …)</li>
+              <li class="fragment">updates structured metadata (k/v map)</li>
+              <li class="fragment">use replace stage to remove from log line</li>
             </ul>
           </section>
           <section>
@@ -713,7 +884,7 @@
 
                 {app=~"k6"} |= "method=POST" | logfmt | __error__ = "" | bytes > 20KB  # all POST requests w/ >20KB
 
-                {job="systemd-journal"}                                                # users invoked `sudo`
+                {job="journal", syslog_identifier="sshd-session"}                      # users invoked `sudo`
                 &nbsp;    |~ `pam_unix\([a-z]+:session\)`
                 &nbsp;    |= "opened"
                 &nbsp;    | pattern "pam_unix(&lt;type&gt;:session): session opened for user &lt;_&gt; by &lt;user&gt;(uid=&lt;_&gt;)"
@@ -728,7 +899,7 @@
             <code>
               <pre class="js:trim-whitespace">
                 sum(count_over_time(
-                &nbsp;  {job="systemd-journal"}[$__interval]
+                &nbsp;  {job="journal", syslog_identifier="sshd-session"}[$__interval]
                 &nbsp;    |~ `pam_unix\(sudo:session\)`
                 &nbsp;    |= "opened"
                 &nbsp;    | pattern "pam_unix(sudo:session): session opened for user &lt;_&gt; by &lt;user&gt;(uid=&lt;_&gt;)"
@@ -738,6 +909,19 @@
                 sum(count_over_time({app=~"k6", format="logfmt"}[$__interval] | logfmt)) by (method)
 
                 sum(rate({app=~"k6", format="logfmt"}[$__interval] | logfmt | unwrap bytes)) by (method)
+              </pre>
+            </code>
+          </section>
+          <section data-visibility="hidden">
+            <h3>Structured Metadata</h3>
+            <ul>
+              <li>labels: <code><pre class="inline">job</pre></code>, <code><pre class="inline">syslog_identifier</pre></code></li>
+              <li>structured metadata: <code><pre class="inline">level</pre></code></li>
+            </ul>
+            <code>
+              <pre class="js:trim-whitespace">
+                {job="journal", syslog_identifier="kernel", level="error"}  <span style="color: #8b0303;"># &#x2718;</span> <span style="color: darkgrey;">can not be used in stream selector</span>
+                {job="journal", syslog_identifier="kernel"} | level="error" <span style="color: #0e8b03;"># &#x2714;</span> <span style="color: darkgrey;">no parsing expression required</span>
               </pre>
             </code>
           </section>

@@ -18,8 +18,8 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
+  "id": 5,
   "links": [],
-  "liveNow": false,
   "panels": [
     {
       "datasource": {
@@ -32,11 +32,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -45,6 +47,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
@@ -99,6 +102,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -126,11 +130,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -139,6 +145,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineStyle": {
               "fill": "solid"
@@ -197,6 +204,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -224,11 +232,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -237,6 +247,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -289,6 +300,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -296,7 +308,7 @@
             "uid": "P8E80F9AEF21F6940"
           },
           "editorMode": "code",
-          "expr": "sum(count_over_time(\n    {job=\"systemd-journal\"}[$__interval]\n        |~ `pam_unix\\(sudo:session\\)`\n        |= \"opened\"\n        | pattern \"pam_unix(sudo:session): session opened for user <_> by <user>(uid=<_>)\"\n        | __error__ = \"\"\n        | line_format \"{{.user}}\")) by (user)",
+          "expr": "sum(count_over_time(\n    {job=\"journal\", syslog_identifier=\"sshd-session\"}[$__interval]\n        |~ `pam_unix\\(sudo:session\\)`\n        |= \"opened\"\n        | pattern \"pam_unix(sudo:session): session opened for user <_> by <user>(uid=<_>)\"\n        | __error__ = \"\"\n        | line_format \"{{.user}}\")) by (user)",
           "legendFormat": "{{user}}",
           "queryType": "range",
           "refId": "A"
@@ -306,9 +318,9 @@
       "type": "timeseries"
     }
   ],
+  "preload": false,
   "refresh": "5s",
-  "schemaVersion": 38,
-  "style": "dark",
+  "schemaVersion": 40,
   "tags": [],
   "templating": {
     "list": []
@@ -321,6 +333,6 @@
   "timezone": "",
   "title": "Metric Queries",
   "uid": "c86dd408-9e4b-4934-ae63-0565302cc933",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
