@@ -28,7 +28,7 @@ $provision_privileged = <<-SCRIPT
 #zypper refresh
 #zypper --non-interactive update
 zypper --non-interactive install docker htop jq tree tmux unzip
-zypper --non-interactive install git-core go1.22 make
+zypper --non-interactive install git-core go1.23 make
 zypper --non-interactive install libxtables12=1.8.11-1.1
 
 systemctl enable docker
