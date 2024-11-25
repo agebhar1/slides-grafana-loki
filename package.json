@@ -12,7 +12,7 @@
   "devDependencies": {
     "@types/reveal.js": "5.0.4",
     "reveal.js": "5.1.0",
-    "typescript": "5.6.3",
+    "typescript": "5.7.2",
     "vite": "5.4.11"
   }
 }
