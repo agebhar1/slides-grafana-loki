@@ -53,7 +53,7 @@ services:
       <<: *labels
 
   grafana:
-    image: grafana/grafana:11.3.1
+    image: grafana/grafana:11.4.0
     volumes:
       - ./etc/grafana/provisioning:/etc/grafana/provisioning:ro
     environment:
