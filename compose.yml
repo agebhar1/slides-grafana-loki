@@ -92,7 +92,7 @@ services:
       <<: *labels
 
   minio:
-    image: minio/minio:RELEASE.2024-11-07T00-52-20Z
+    image: minio/minio:RELEASE.2024-12-13T22-19-12Z
     volumes:
       - ${MINIO_DATA:-minio_data}:/data
     environment:
