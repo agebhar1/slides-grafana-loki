@@ -85,7 +85,7 @@ default   [===>----------------------------------] 1 VUs  00m14.6s/10m0s  013/10
 …
 ```
 
-‡: requires a non empty log file in `/home/vagrant/promtail/log/`, e.g.:
+‡: requires a non empty log file in `/home/vagrant/alloy/log/`, e.g.:
 ```bash
-vagrant@loki:/vagrant> watch -n 1 'date >> /home/vagrant/promtail/log/date.log'
+vagrant@loki:/vagrant> watch -n 1 'date >> /home/vagrant/alloy/log/date.log'
 ```

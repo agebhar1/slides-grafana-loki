@@ -43,7 +43,7 @@ pushd /vagrant
 test -e .env || ln -s dotenv .env || cp dotenv .env
 popd
 
-mkdir -p ~/{.docker/cli-plugins,loki,minio,postgres,prometheus,promtail/log}
+mkdir -p ~/{.docker/cli-plugins,alloy/{data,log},loki,minio,postgres,prometheus}
 
 #
 # install Docker Compose

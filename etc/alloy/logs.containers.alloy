@@ -1,0 +1,55 @@
+// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.source.docker/
+loki.source.docker "containers" {
+	host             = "unix:///var/run/docker.sock"
+	targets          = discovery.docker.containers.targets
+	forward_to       = [loki.process.containers.receiver]
+	relabel_rules    = discovery.relabel.containers.rules
+	refresh_interval = "15s"
+}
+
+// https://grafana.com/docs/alloy/latest/reference/components/discovery/discovery.docker/
+discovery.docker "containers" {
+	host             = "unix:///var/run/docker.sock"
+	refresh_interval = "15s"
+
+	filter {
+		name   = "label"
+		values = ["io.github.agebhar1.project=observability"]
+	}
+}
+
+// https://grafana.com/docs/alloy/latest/reference/components/discovery/discovery.relabel/
+discovery.relabel "containers" {
+	targets = []
+
+	rule {
+		source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+		target_label  = "service"
+	}
+
+	rule {
+		source_labels = ["__meta_docker_container_name"]
+		regex         = "/(.*)"
+		target_label  = "container"
+	}
+
+	rule {
+		source_labels = ["__meta_docker_container_label_hostname"]
+		target_label  = "hostname"
+	}
+}
+
+// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/
+loki.process "containers" {
+	forward_to = [loki.write.default.receiver]
+
+	// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/#stagedocker
+	stage.docker { }
+
+	// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/#stagestatic_labels
+	stage.static_labels {
+		values = {
+			job = "containers",
+		}
+	}
+}

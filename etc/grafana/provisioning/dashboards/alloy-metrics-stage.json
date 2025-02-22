@@ -110,7 +110,7 @@
               "uid": "PBFA97CFB590B2093"
             },
             "editorMode": "code",
-            "expr": "sum by (filename) (rate(promtail_custom_log_bytes_total{filename=~\".+\"}[1m]))",
+            "expr": "sum by (filename) (rate(loki_process_custom_log_bytes_total{filename=~\".+\"}[1m]))",
             "format": "time_series",
             "instant": false,
             "legendFormat": "{{filename}}",
@@ -208,7 +208,7 @@
               "uid": "PBFA97CFB590B2093"
             },
             "editorMode": "code",
-            "expr": "sum by (filename) (rate(promtail_custom_log_lines_total{filename=~\".+\"}[1m]))",
+            "expr": "sum by (filename) (rate(loki_process_custom_log_lines_total{filename=~\".+\"}[1m]))",
             "instant": false,
             "legendFormat": "{{filename}}",
             "range": true,
@@ -252,7 +252,7 @@
             "refId": "A"
           }
         ],
-        "title": "/home/vagrant/promtail/log/",
+        "title": "/home/vagrant/alloy/log/",
         "type": "logs"
       }
     ],
@@ -268,7 +268,7 @@
     },
     "timepicker": {},
     "timezone": "",
-    "title": "Promtail Metrics Stage",
+    "title": "Alloy Metrics Stage",
     "uid": "b425a9d0-8f33-489a-948e-54bbf8810d56",
     "version": 1,
     "weekStart": ""

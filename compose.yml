@@ -122,24 +122,30 @@ services:
       io.prometheus/port: 9000
       io.prometheus/path: /minio/v2/metrics/cluster
 
-  # https://grafana.com/docs/grafana-cloud/quickstart/docker-compose-linux/
-
-  promtail:
-    image: grafana/promtail:3.4.2
+  alloy:
+    image: grafana/alloy:v1.6.1
     volumes:
-      - ./etc/promtail/config.yml:/etc/promtail/config.yml:ro
+      - ./etc/alloy:/etc/alloy:ro
+      - ${ALLOY_DATA:-alloy_data}:/var/lib/alloy/data
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/log/journal/:/var/log/journal/:ro
       - /run/log/journal/:/run/log/journal/:ro
       - ${LOGFILES:-./var/log}:/mnt/log:ro
-      - promtail_data:/var/lib/promtail
+    # https://grafana.com/docs/alloy/latest/set-up/install/docker/
+    # https://grafana.com/docs/alloy/latest/data-collection/#opt-out-of-data-collection
+    command:
+      - run
+      - --disable-reporting
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy
     ports:
-      - 9080:9080
+      - 12345:12345
     restart: unless-stopped
     labels:
       <<: *labels
-      io.prometheus/port: 9080
+      io.prometheus/port: 12345
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.2
@@ -162,4 +168,5 @@ volumes:
   prometheus_data:
   promtail_data:
   loki_data:
+  alloy_data:
   minio_data:

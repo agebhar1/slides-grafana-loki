@@ -1,0 +1,118 @@
+// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.source.journal/
+loki.source.journal "journal" {
+	path          = "/var/log/journal"
+	relabel_rules = discovery.relabel.journal.rules
+	forward_to    = [loki.process.journal.receiver]
+	labels        = {
+		job = "journal",
+	}
+}
+
+// https://grafana.com/docs/alloy/latest/reference/components/discovery/discovery.relabel/
+discovery.relabel "journal" {
+	targets = []
+
+	rule {
+		source_labels = ["__journal_priority_keyword"]
+		target_label  = "level"
+	}
+
+	rule {
+		source_labels = ["__journal_syslog_identifier"]
+		target_label  = "syslog_identifier"
+	}
+
+	rule {
+		source_labels = ["__journal__systemd_cgroup"]
+		target_label  = "systemd_cgroup"
+	}
+
+	rule {
+		source_labels = ["__journal__systemd_slice"]
+		target_label  = "systemd_slice"
+	}
+
+	rule {
+		source_labels = ["__journal__systemd_unit"]
+		target_label  = "systemd_unit"
+	}
+
+	rule {
+		source_labels = ["__journal__systemd_user_unit"]
+		target_label  = "systemd_user_unit"
+	}
+
+	rule {
+		source_labels = ["__journal__systemd_user_slice"]
+		target_label  = "systemd_user_slice"
+	}
+
+	rule {
+		source_labels = ["__journal__systemd_session"]
+		target_label  = "systemd_session"
+	}
+
+	rule {
+		source_labels = ["__journal__systemd_owner_uid"]
+		target_label  = "systemd_owner_uid"
+	}
+
+	rule {
+		source_labels = ["__journal__selinux_context"]
+		target_label  = "selinux_context"
+	}
+
+	rule {
+		source_labels = ["__journal__audit_session"]
+		target_label  = "audit_session"
+	}
+
+	rule {
+		source_labels = ["__journal__audit_loginuid"]
+		target_label  = "audit_loginuid"
+	}
+
+	rule {
+		source_labels = ["__journal__hostname"]
+		target_label  = "hostname"
+	}
+}
+
+// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/
+loki.process "journal" {
+	forward_to = [loki.write.default.receiver]
+
+	// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/#stagestructured_metadata
+	stage.structured_metadata {
+		values = {
+			audit_loginuid     = null,
+			audit_session      = null,
+			level              = null,
+			selinux_context    = null,
+			systemd_cgroup     = null,
+			systemd_owner_uid  = null,
+			systemd_session    = null,
+			systemd_slice      = null,
+			systemd_unit       = null,
+			systemd_user_slice = null,
+			systemd_user_unit  = null,
+		}
+	}
+
+	// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/#stagelabel_drop
+	stage.label_drop {
+		values = [
+			"audit_loginuid",
+			"audit_session",
+			"level",
+			"selinux_context",
+			"systemd_cgroup",
+			"systemd_owner_uid",
+			"systemd_session",
+			"systemd_slice",
+			"systemd_unit",
+			"systemd_user_slice",
+			"systemd_user_unit",
+		]
+	}
+}

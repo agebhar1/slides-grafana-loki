@@ -1,0 +1,43 @@
+// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.source.file/
+loki.source.file "various_metrics" {
+	targets    = local.file_match.various_metrics.targets
+	forward_to = [loki.process.various_metrics.receiver]
+}
+
+// https://grafana.com/docs/alloy/latest/reference/components/local/local.file_match/
+local.file_match "various_metrics" {
+	path_targets = [{
+		__address__      = "localhost",
+		__path__         = "/mnt/log/*.log",
+		__path_exclude__ = "/mnt/log/structured-metadata-example.log",
+		job              = "various",
+	}]
+}
+
+// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/
+loki.process "various_metrics" {
+	forward_to = [loki.write.default.receiver]
+
+	// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/#stagemetrics
+	stage.metrics {
+		// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/#metriccounter
+		metric.counter {
+			action            = "inc"
+			name              = "log_lines_total"
+			description       = "total number of log lines"
+			max_idle_duration = "24h"
+			match_all         = true
+			// prefix = "loki_process_custom_"
+		}
+
+		metric.counter {
+			action            = "add"
+			name              = "log_bytes_total"
+			description       = "total bytes of log lines"
+			max_idle_duration = "24h"
+			match_all         = true
+			count_entry_bytes = true
+			// prefix = "loki_process_custom_"
+		}
+	}
+}

@@ -1,0 +1,46 @@
+// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.source.file/
+loki.source.file "structured_metadata" {
+	targets    = local.file_match.structured_metadata.targets
+	forward_to = [loki.process.structured_metadata.receiver]
+}
+
+// https://grafana.com/docs/alloy/latest/reference/components/local/local.file_match/
+local.file_match "structured_metadata" {
+	path_targets = [{
+		__address__ = "localhost",
+		__path__    = "/mnt/log/structured-metadata-example.log",
+		job         = "structured-metadata",
+	}]
+}
+
+// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/
+loki.process "structured_metadata" {
+	forward_to = [loki.write.default.receiver]
+
+	// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/#stagelogfmt
+	stage.logfmt {
+		mapping = {
+			stream  = "",
+			traceID = "",
+		}
+	}
+
+	// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/#stagereplace
+	stage.replace {
+		expression = "(traceID=[0-9a-c]+\\s?)"
+	}
+
+	// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/#stagelabels
+	stage.labels {
+		values = {
+			stream = null,
+		}
+	}
+
+	//https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/#stagestructured_metadata
+	stage.structured_metadata {
+		values = {
+			traceID = null,
+		}
+	}
+}
