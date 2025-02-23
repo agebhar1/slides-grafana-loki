@@ -16,7 +16,7 @@ local.file_match "various_metrics" {
 
 // https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/
 loki.process "various_metrics" {
-	forward_to = [loki.write.default.receiver]
+	forward_to = [otelcol.receiver.loki.default.receiver]
 
 	// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/#stagemetrics
 	stage.metrics {

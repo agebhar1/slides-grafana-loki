@@ -1,0 +1,13 @@
+// https://grafana.com/docs/alloy/latest/reference/components/otelcol/otelcol.receiver.loki/
+otelcol.receiver.loki "default" {
+	output {
+		logs = [otelcol.exporter.otlphttp.default.input]
+	}
+}
+
+// https://grafana.com/docs/alloy/latest/reference/components/otelcol/otelcol.exporter.otlphttp/
+otelcol.exporter.otlphttp "default" {
+	client {
+		endpoint = "http://loki:3100/otlp"
+	}
+}

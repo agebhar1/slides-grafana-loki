@@ -41,10 +41,14 @@ discovery.relabel "containers" {
 
 // https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/
 loki.process "containers" {
-	forward_to = [loki.write.default.receiver]
+	forward_to = [otelcol.receiver.loki.default.receiver]
 
 	// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/#stagedocker
 	stage.docker { }
+
+	stage.drop {
+		expression = ".*push request parsed-*"
+	}
 
 	// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/#stagestatic_labels
 	stage.static_labels {

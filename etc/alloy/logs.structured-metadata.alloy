@@ -15,7 +15,7 @@ local.file_match "structured_metadata" {
 
 // https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/
 loki.process "structured_metadata" {
-	forward_to = [loki.write.default.receiver]
+	forward_to = [otelcol.receiver.loki.default.receiver]
 
 	// https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/#stagelogfmt
 	stage.logfmt {
