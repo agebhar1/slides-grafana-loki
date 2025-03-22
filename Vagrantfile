@@ -48,7 +48,7 @@ mkdir -p ~/{.docker/cli-plugins,loki,minio,postgres,prometheus,promtail/log}
 #
 # install Docker Compose
 #
-curl -L --silent https://github.com/docker/compose/releases/download/v2.33.0/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+curl -L --silent https://github.com/docker/compose/releases/download/v2.34.0/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
 chmod +x ~/.docker/cli-plugins/docker-compose
 
 #
