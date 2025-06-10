@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@types/reveal.js": "5.0.5",
+    "@types/reveal.js": "5.2.0",
     "reveal.js": "5.2.1",
     "typescript": "5.8.3",
     "vite": "6.3.5"
