@@ -12,6 +12,8 @@ Vagrant.configure("2") do |config|
     config.vm.provider "virtualbox" do |vb|
         vb.memory = 1024 * 16
         vb.cpus = 4
+        vb.customize ["modifyvm", :id, "--vram", "8"]
+        vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
     end
 
     if Vagrant.has_plugin?("vagrant-proxyconf")
