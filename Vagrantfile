@@ -30,7 +30,7 @@ $provision_privileged = <<-SCRIPT
 zypper refresh
 zypper --non-interactive update
 zypper --non-interactive install docker htop jq tree tmux unzip
-zypper --non-interactive install git-core go1.24 make
+zypper --non-interactive install git-core go1.25 make
 
 systemctl enable docker
 systemctl start docker
