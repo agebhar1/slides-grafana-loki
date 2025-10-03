@@ -142,7 +142,7 @@ services:
       io.prometheus/port: 9080
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.52.1
+    image: ghcr.io/google/cadvisor:v0.53.0
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
