@@ -4,7 +4,7 @@
 Vagrant.configure("2") do |config|
 
     config.vm.box = "Tumbleweed.x86_64"
-    config.vm.box_url = "https://download.opensuse.org/tumbleweed/appliances/Tumbleweed.x86_64-virtualbox.box"
+    config.vm.box_url = "https://download.opensuse.org/tumbleweed/appliances/boxes/Tumbleweed.x86_64.json"
 
     config.vm.hostname = 'loki'
     config.vm.network :private_network, ip: '192.168.56.10'
