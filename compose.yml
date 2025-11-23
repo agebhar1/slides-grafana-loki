@@ -6,7 +6,7 @@ x-common: &labels
 
 services:
   postgres:
-    image: postgres:17.6
+    image: postgres:17.7
     volumes:
       - ${POSTGRES_DATA:-postgres_data}:/var/lib/postgresql/data
     environment:
