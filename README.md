@@ -25,34 +25,58 @@ Open [http://localhost:5173/?print-pdf](http://localhost:5173/?print-pdf) in a C
 
 ## Upgrade PostgreSQL ##
 
+> [!IMPORTANT]
+> Error: in 18+, these Docker images are configured to store database data in a
+> format which is compatible with "pg_ctlcluster" (specifically, using
+> major-version-specific directory names).  This better reflects how
+> PostgreSQL itself works, and how upgrades are to be performed.
+> 
+>        See also docker-library/postgres#1259
+> 
+>        Counter to that, there appears to be PostgreSQL data in:
+>          /var/lib/postgresql/data (unused mount/volume)
+> 
+>        This is usually the result of upgrading the Docker image without
+>        upgrading the underlying database using "pg_upgrade" (which requires both
+>        versions).
+> 
+>        The suggested container configuration for 18+ is to place a single mount
+>        at /var/lib/postgresql which will then place PostgreSQL data in a
+>        subdirectory, allowing usage of "pg_upgrade --link" without mount point
+>        boundary issues.
+>
+>        See docker-library/postgres#37 for a (long)
+>        discussion around this process, and suggestions for how to do so.
+
 ```bash
 $ grep 'image: postgres:' compose.yml
-    image: postgres:16.9
+    image: postgres:17.7
 $ docker compose up postgres -d
-[+] Running 2/2
- ✔ Network vagrant_default       Created 0.1s
- ✔ Container vagrant-postgres-1  Started 0.2s
+[+] up 2/2
+ ✔ Network vagrant_default      Created  0.1s
+ ✔ Container vagrant-postgres-1 Created  0.0s
 $ docker compose exec postgres /usr/bin/pg_dump --username postgres --dbname grafana --blobs > db.out
 $ docker compose down postgres
-[+] Running 2/2
- ✔ Container vagrant-postgres-1  Removed 0.1s
- ✔ Network vagrant_default       Removed 0.1s
-$ mv ~/postgres ~/postgres-16
+[+] down 2/2
+ ✔ Container vagrant-postgres-1 Removed  0.2s
+ ✔ Network vagrant_default      Removed  0.2s
+$ mv ~/postgres ~/postgres-17
 $ mkdir ~/postgres
 $ git pull
 $ grep 'image: postgres:' compose.yml
-    image: postgres:17.5
+    image: postgres:18.1
 $ docker compose up postgres -d
-[+] Running 1/1
- ✔ Container vagrant-postgres-1  Started 0.4s
+[+] up 2/2
+ ✔ Network vagrant_default      Created  0.1s
+ ✔ Container vagrant-postgres-1 Created  0.0s
 $ docker compose cp db.out postgres:/db.out
-[+] Copying 1/1
- ✔ vagrant-postgres-1 copy db.out to vagrant-postgres-1:/db.out Copied 0.0s
+[+] copy 1/1
+ ✔ vagrant-postgres-1 Copied db.out to vagrant-postgres-1:/db.out 0.1s
 $ docker compose exec postgres /usr/bin/psql --username postgres -d grafana -X -f /db.out
-docker compose down postgres
-[+] Running 2/2
- ✔ Container vagrant-postgres-1  Removed 0.3s
- ✔ Network vagrant_default       Removed 0.1s
+$ docker compose down postgres
+[+] down 2/2
+ ✔ Container vagrant-postgres-1 Removed  0.5s
+ ✔ Network vagrant_default      Removed  0.1s
 ```
 
 ## Demo

@@ -6,9 +6,9 @@ x-common: &labels
 
 services:
   postgres:
-    image: postgres:17.7
+    image: postgres:18.1
     volumes:
-      - ${POSTGRES_DATA:-postgres_data}:/var/lib/postgresql/data
+      - ${POSTGRES_DATA:-postgres_data}:/var/lib/postgresql
     environment:
       POSTGRES_PASSWORD: secret
       POSTGRES_DB: grafana
