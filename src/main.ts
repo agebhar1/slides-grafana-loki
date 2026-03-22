@@ -1,5 +1,5 @@
 import Reveal from "reveal.js";
-import Note from "reveal.js/plugin/notes/notes";
+import Note from "reveal.js/plugin/notes";
 
 import "./style.css";
 
