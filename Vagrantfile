@@ -44,7 +44,7 @@ pushd /vagrant
 test -e .env || ln -s dotenv .env || cp dotenv .env
 popd
 
-mkdir -p ~/{.docker/cli-plugins,loki,minio,postgres,prometheus,promtail/log}
+mkdir -p ~/{.docker/cli-plugins,loki,postgres,prometheus,promtail/log,rustfs}
 
 #
 # install Docker Compose
@@ -92,30 +92,35 @@ eval "$(logcli --completion-script-bash)"
 EOF
 
 #
-# install MinIO client
+# install RustFS client -- https://github.com/rustfs/cli
 #
-MINIO_VERSION=2025-08-13T08-35-41Z
+curl -L --silent https://github.com/rustfs/cli/releases/download/v0.1.21/rustfs-cli-linux-amd64-v0.1.21.tar.gz | tar --directory ~/.local/bin/ -xzf -
 
-curl -L --silent --fail https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.${MINIO_VERSION} -o ~/.local/bin/mcli || \
-    curl -L --silent --fail https://dl.min.io/client/mc/release/linux-amd64/mc.RELEASE.${MINIO_VERSION} -o ~/.local/bin/mcli || \
-    curl -L --silent --fail https://dl.min.io/client/mc/release/linux-amd64/mc -o ~/.local/bin/mcli
+chmod +x ~/.local/bin/rc
 
-chmod +x ~/.local/bin/mcli
+cat << 'EOF' >> ~/.bashrc
 
-newgrp - docker <<EOF
-docker compose -f /vagrant/compose.yml up --quiet-pull --no-color --detach minio
+source <(rc completions bash)
 EOF
 
-# https://min.io/docs/minio/linux/reference/minio-mc/minio-client-settings.html
-while ! mcli alias set local http://localhost:9000 admin minios3cr3t; do
+#
+# setup Loki bucket
+#
+newgrp - docker <<EOF
+docker compose -f /vagrant/compose.yml up --quiet-pull --no-color --detach rustfs
+EOF
+
+(
+export $(grep ^RUSTFS_ /vagrant/.env | xargs)
+while ! rc alias set local http://localhost:9000 ${RUSTFS_ACCESS_KEY:-rustfsadmin} ${RUSTFS_SECRET_KEY:-rustfsadmin}; do
     sleep 1
 done
+)
 
-# https://min.io/docs/minio/container/administration/object-management/object-retention.html#tutorials
-mcli admin user add local/ loki lokis3cr3t
-mcli admin policy attach local/ readwrite --user loki
-mcli mb --with-lock local/loki-data
-mcli retention set --default governance 30d local/loki-data
+rc admin user add local loki lokis3cr3t
+rc admin policy attach local readwrite --user loki
+rc bucket create --with-lock local/loki-data
+rc bucket lifecycle rule add local/loki-data --expiry-days 30
 
 newgrp - docker <<EOF
 docker compose -f /vagrant/compose.yml down
