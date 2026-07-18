@@ -94,7 +94,7 @@ EOF
 #
 # install RustFS client -- https://github.com/rustfs/cli
 #
-curl -L --silent https://github.com/rustfs/cli/releases/download/v0.1.25/rustfs-cli-linux-amd64-v0.1.25.tar.gz | tar --directory ~/.local/bin/ -xzf -
+curl -L --silent https://github.com/rustfs/cli/releases/download/v0.1.28/rustfs-cli-linux-amd64-v0.1.28.tar.gz | tar --directory ~/.local/bin/ -xzf -
 
 chmod +x ~/.local/bin/rc
 
@@ -119,7 +119,7 @@ done
 
 rc admin user add local loki lokis3cr3t
 rc admin policy attach local readwrite --user loki
-rc bucket create --with-lock local/loki-data
+rc bucket create local/loki-data
 rc bucket lifecycle rule add local/loki-data --expiry-days 30
 
 newgrp - docker <<EOF
