@@ -83,7 +83,7 @@ popd
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-nvm install v24.16.0
+nvm install v24.18.0
 
 cat << 'EOF' >> ~/.bashrc
 
