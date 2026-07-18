@@ -95,7 +95,7 @@ services:
       <<: *labels
 
   rustfs:
-    image: rustfs/rustfs:1.0.0-beta.8-glibc
+    image: rustfs/rustfs:1.0.0-beta.10-glibc
     volumes:
       - ${RUSTFS_DATA:-rustfs_data}:/data
     environment:
