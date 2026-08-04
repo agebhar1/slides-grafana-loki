@@ -94,7 +94,7 @@ EOF
 #
 # install RustFS client -- https://github.com/rustfs/cli
 #
-curl -L --silent https://github.com/rustfs/cli/releases/download/v0.1.28/rustfs-cli-linux-amd64-v0.1.28.tar.gz | tar --directory ~/.local/bin/ -xzf -
+curl -L --silent https://github.com/rustfs/cli/releases/download/v0.1.31/rustfs-cli-linux-amd64-v0.1.31.tar.gz | tar --directory ~/.local/bin/ -xzf -
 
 chmod +x ~/.local/bin/rc
 
