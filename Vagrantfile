@@ -63,7 +63,7 @@ chmod +x ~/.local/bin/logcli
 #
 # install Grafana xk6
 #
-GOBIN=~/.local/bin/ go install go.k6.io/xk6/cmd/xk6@v1.4.9
+GOBIN=~/.local/bin/ go install go.k6.io/xk6/cmd/xk6@v1.4.11
 
 #
 # build w/ loki k6 extension
